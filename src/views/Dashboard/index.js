@@ -8,6 +8,12 @@ import logo from '#resources/img/deep-logo.svg';
 import BoundError from '#rs/components/General/BoundError';
 import AppError from '#components/AppError';
 
+import {
+    defaultTheme,
+    classicDeepTheme,
+    setTheme,
+} from '#utils/theme';
+
 import styles from './styles.scss';
 
 const propTypes = {
@@ -23,6 +29,18 @@ const mapStateToProps = (state, props) => ({
 @connect(mapStateToProps, undefined)
 export default class Dashboard extends React.PureComponent {
     static propTypes = propTypes;
+
+    constructor(props) {
+        super(props);
+
+        setTimeout(() => {
+            setTheme(classicDeepTheme);
+        }, 1000);
+
+        setTimeout(() => {
+            setTheme(defaultTheme);
+        }, 5000);
+    }
 
     render() {
         const { currentUserActiveProject } = this.props;
