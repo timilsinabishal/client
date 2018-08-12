@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import Numeral from '#rscv/Numeral';
 import NormalTaebul from '#rscv/Taebul';
 import TextInput from '#rsci/TextInput';
-import MultiSortable from '#rscv/Taebul/MultiSortable';
+// import MultiSortable from '#rscv/Taebul/MultiSortable';
+import Sortable from '#rscv/Taebul/Sortable';
 import Searchable from '#rscv/Taebul/Searchable';
 import { compareString, caseInsensitiveSubmatch } from '#rsu/common';
 import update from '#rsu/immutable-update';
@@ -18,7 +19,7 @@ import AppError from '#components/AppError';
 
 import styles from './styles.scss';
 
-const Taebul = Searchable(MultiSortable(NormalTaebul));
+const Taebul = Searchable(Sortable(NormalTaebul));
 
 const Header = ({ title, sortOrder, onHeaderClick, columnKey, sortable }) => {
     if (!sortable) {
@@ -136,6 +137,7 @@ export default class Dashboard extends React.PureComponent {
                 { id: 8, firstName: 'Bibek', lastName: 'Aryal', salary: 288391 },
             ],
             settings: {
+                /*
                 sortOrders: {
                     firstName: {
                         key: 'firstName',
@@ -147,6 +149,11 @@ export default class Dashboard extends React.PureComponent {
                         order: 'asc',
                         logicalOrder: 2,
                     },
+                },
+                */
+                sortOrder: {
+                    key: 'firstName',
+                    order: 'asc',
                 },
                 searchString: '',
             },
