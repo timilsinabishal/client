@@ -13,6 +13,11 @@
         text-transform: uppercase;
     }
 
+    .cell {
+        padding: $spacing-small;
+        width: 25%;
+    }
+
     .content {
         display: flex;
         align-items: center;
