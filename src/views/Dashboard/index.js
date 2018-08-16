@@ -5,8 +5,11 @@ import { connect } from 'react-redux';
 
 import Numeral from '#rscv/Numeral';
 import NormalTaebul from '#rscv/Taebul';
+import Header from '#rscv/Taebul/Header';
+import Cell from '#rscv/Taebul/Cell';
 import TextInput from '#rsci/TextInput';
 // import MultiSortable from '#rscv/Taebul/MultiSortable';
+import ColumnWidth from '#rscv/Taebul/ColumnWidth';
 import Sortable from '#rscv/Taebul/Sortable';
 import Searchable from '#rscv/Taebul/Searchable';
 import { compareString, caseInsensitiveSubmatch } from '#rsu/common';
@@ -19,45 +22,7 @@ import AppError from '#components/AppError';
 
 import styles from './styles.scss';
 
-const Taebul = Searchable(Sortable(NormalTaebul));
-
-const Header = ({ title, sortOrder, onHeaderClick, columnKey, sortable }) => {
-    if (!sortable) {
-        return (
-            <div className={styles.cell}>
-                {title}
-            </div>
-        );
-    }
-
-    let symbol;
-    switch (sortOrder) {
-        case 'asc': {
-            symbol = 'v';
-            break;
-        }
-        case 'dsc': {
-            symbol = '^';
-            break;
-        }
-        default: {
-            symbol = '';
-            break;
-        }
-    }
-
-    const handleButtonClick = () => {
-        onHeaderClick(columnKey);
-    };
-
-    return (
-        <div className={styles.cell}>
-            <button onClick={handleButtonClick} type="button">
-                {symbol} {title}
-            </button>
-        </div>
-    );
-};
+const Taebul = ColumnWidth(Searchable(Sortable(NormalTaebul)));
 
 const propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
@@ -88,7 +53,10 @@ export default class Dashboard extends React.PureComponent {
                 key: 'firstName',
                 title: 'First Name',
 
-                cellRendererParams: ({ datum }) => ({ firstName: datum.firstName }),
+                cellRendererParams: ({ datum, column }) => ({
+                    firstName: datum.firstName,
+                    width: column.width,
+                }),
                 cellRenderer: ({ firstName }) => <div className={styles.cell}>{firstName}</div>,
 
                 comparator: (foo, bar, d) => compareString(foo.firstName, bar.firstName, d),
@@ -97,7 +65,10 @@ export default class Dashboard extends React.PureComponent {
                 key: 'lastName',
                 title: 'Last Name',
 
-                cellRendererParams: ({ datum }) => ({ lastName: datum.lastName }),
+                cellRendererParams: ({ datum, column }) => ({
+                    lastName: datum.lastName,
+                    width: column.width,
+                }),
                 cellRenderer: ({ lastName }) => <div className={styles.cell}>{lastName}</div>,
 
                 comparator: (foo, bar, d) => compareString(foo.lastName, bar.lastName, d),
@@ -106,9 +77,10 @@ export default class Dashboard extends React.PureComponent {
                 key: 'name',
                 title: 'Name',
 
-                cellRendererParams: ({ datum }) => ({
+                cellRendererParams: ({ datum, column }) => ({
                     lastName: datum.lastName,
                     firstName: datum.firstName,
+                    width: column.width,
                 }),
                 cellRenderer: ({ lastName, firstName }) => (
                     <div className={styles.cell}>{lastName}, {firstName}</div>
@@ -118,8 +90,10 @@ export default class Dashboard extends React.PureComponent {
                 key: 'salary',
                 title: 'Salary',
 
-                cellRendererParams: ({ datum }) => ({
-                    value: datum.salary, className: styles.cell,
+                cellRendererParams: ({ datum, column }) => ({
+                    value: datum.salary,
+                    className: styles.cell,
+                    width: column.width,
                 }),
                 cellRenderer: Numeral,
             },
@@ -155,7 +129,15 @@ export default class Dashboard extends React.PureComponent {
                     key: 'firstName',
                     order: 'asc',
                 },
+
                 searchString: '',
+
+                columnWidths: {
+                    firstName: 200,
+                    lastName: 200,
+                    name: 240,
+                    salary: 160,
+                },
             },
         };
     }
@@ -165,6 +147,7 @@ export default class Dashboard extends React.PureComponent {
         sortOrder: column.sortOrder,
         onHeaderClick: column.onHeaderClick,
         sortable: column.sortable,
+        width: column.width,
         columnKey,
     });
 
