@@ -12,6 +12,7 @@ import TextInput from '#rsci/TextInput';
 import ColumnWidth from '#rscv/Taebul/ColumnWidth';
 import Sortable from '#rscv/Taebul/Sortable';
 import Searchable from '#rscv/Taebul/Searchable';
+// import Selectable from '#rscv/Taebul/Selectable';
 import { compareString, caseInsensitiveSubmatch } from '#rsu/common';
 import update from '#rsu/immutable-update';
 
@@ -23,6 +24,47 @@ import AppError from '#components/AppError';
 import styles from './styles.scss';
 
 const Taebul = ColumnWidth(Searchable(Sortable(NormalTaebul)));
+// const Taebul = Searchable(Sortable(Selectable(NormalTaebul)));
+
+/*
+const Header = ({ title, sortOrder, onSortClick, columnKey, sortable, onSelectClick }) => {
+    if (!sortable) {
+        return (
+            <div className={styles.cell}>
+                {title}
+            </div>
+        );
+    }
+
+    let symbol;
+    switch (sortOrder) {
+        case 'asc': {
+            symbol = 'v';
+            break;
+        }
+        case 'dsc': {
+            symbol = '^';
+            break;
+        }
+        default: {
+            symbol = '';
+            break;
+        }
+    }
+
+    const handleButtonClick = () => {
+        onSortClick(columnKey);
+    };
+
+    return (
+        <div className={styles.cell}>
+            <button onClick={handleButtonClick} type="button">
+                {symbol} {title}
+            </button>
+        </div>
+    );
+};
+*/
 
 const propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
@@ -172,7 +214,7 @@ export default class Dashboard extends React.PureComponent {
     headerRendererParams = ({ column, columnKey }) => ({
         title: column.title,
         sortOrder: column.sortOrder,
-        onHeaderClick: column.onHeaderClick,
+        onSortClick: column.onSortClick,
         sortable: column.sortable,
         width: column.width,
         columnKey,
@@ -212,6 +254,7 @@ export default class Dashboard extends React.PureComponent {
                     settings={this.state.settings}
                     onChange={this.handleSettingsChange}
                     searchFunction={Dashboard.searchFunction}
+                    selectClassName={styles.cell}
                 />
                 <div className={styles.content}>
                     <ReactSVG
