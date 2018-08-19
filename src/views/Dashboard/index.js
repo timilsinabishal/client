@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 
 import Numeral from '#rscv/Numeral';
 import NormalTaebul from '#rscv/Taebul';
-import Header from '#rscv/Taebul/Header';
-import Cell from '#rscv/Taebul/Cell';
+// import Header from '#rscv/Taebul/Header';
+// import Cell from '#rscv/Taebul/Cell';
 import TextInput from '#rsci/TextInput';
 // import MultiSortable from '#rscv/Taebul/MultiSortable';
 import ColumnWidth from '#rscv/Taebul/ColumnWidth';
@@ -48,22 +48,43 @@ export default class Dashboard extends React.PureComponent {
     constructor(props) {
         super(props);
 
+        const Header = d => (
+            <div className={styles.cell}>
+                {d.title}
+            </div>
+        );
+
         this.columns = [
             {
                 key: 'firstName',
                 title: 'First Name',
 
+                headerRendererParams: this.headerRendererParams,
+                headerRenderer: Header,
+
                 cellRendererParams: ({ datum, column }) => ({
                     firstName: datum.firstName,
                     width: column.width,
                 }),
-                cellRenderer: ({ firstName }) => <div className={styles.cell}>{firstName}</div>,
+
+                cellRenderer: (d) => {
+                    const { firstName } = d;
+
+                    return (
+                        <div className={styles.cell}>
+                            {firstName}
+                        </div>
+                    );
+                },
 
                 comparator: (foo, bar, d) => compareString(foo.firstName, bar.firstName, d),
             },
             {
                 key: 'lastName',
                 title: 'Last Name',
+
+                headerRendererParams: this.headerRendererParams,
+                headerRenderer: Header,
 
                 cellRendererParams: ({ datum, column }) => ({
                     lastName: datum.lastName,
@@ -77,6 +98,9 @@ export default class Dashboard extends React.PureComponent {
                 key: 'name',
                 title: 'Name',
 
+                headerRendererParams: this.headerRendererParams,
+                headerRenderer: Header,
+
                 cellRendererParams: ({ datum, column }) => ({
                     lastName: datum.lastName,
                     firstName: datum.firstName,
@@ -89,6 +113,9 @@ export default class Dashboard extends React.PureComponent {
             {
                 key: 'salary',
                 title: 'Salary',
+
+                headerRendererParams: this.headerRendererParams,
+                headerRenderer: Header,
 
                 cellRendererParams: ({ datum, column }) => ({
                     value: datum.salary,
@@ -182,8 +209,6 @@ export default class Dashboard extends React.PureComponent {
                     data={this.state.data}
                     keySelector={Dashboard.keySelector}
                     columns={this.columns}
-                    headerRendererParams={this.headerRendererParams}
-                    headerRenderer={Header}
                     settings={this.state.settings}
                     onChange={this.handleSettingsChange}
                     searchFunction={Dashboard.searchFunction}
