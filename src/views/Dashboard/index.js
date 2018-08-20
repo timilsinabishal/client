@@ -3,31 +3,28 @@ import React from 'react';
 import ReactSVG from 'react-svg';
 import { connect } from 'react-redux';
 
-import Numeral from '#rscv/Numeral';
-import NormalTaebul from '#rscv/Taebul';
-// import Header from '#rscv/Taebul/Header';
-// import Cell from '#rscv/Taebul/Cell';
-import TextInput from '#rsci/TextInput';
 // import MultiSortable from '#rscv/Taebul/MultiSortable';
-import ColumnWidth from '#rscv/Taebul/ColumnWidth';
 import Sortable from '#rscv/Taebul/Sortable';
 import Searchable from '#rscv/Taebul/Searchable';
-// import Selectable from '#rscv/Taebul/Selectable';
+import BoundError from '#rscg/BoundError';
+import TextInput from '#rsci/TextInput';
+import Numeral from '#rscv/Numeral';
+import NormalTaebul from '#rscv/Taebul';
+import ColumnWidth from '#rscv/Taebul/ColumnWidth';
+import Selectable from '#rscv/Taebul/Selectable';
 import { compareString, caseInsensitiveSubmatch } from '#rsu/common';
 import update from '#rsu/immutable-update';
 
+import AppError from '#components/AppError';
 import { currentUserActiveProjectSelector } from '#redux';
 import logo from '#resources/img/deep-logo.svg';
-import BoundError from '#rscg/BoundError';
-import AppError from '#components/AppError';
 
 import styles from './styles.scss';
 
-const Taebul = ColumnWidth(Searchable(Sortable(NormalTaebul)));
-// const Taebul = Searchable(Sortable(Selectable(NormalTaebul)));
+// const Taebul = Selectable(Searchable(Sortable(ColumnWidth(NormalTaebul))));
+const Taebul = Selectable(Searchable(Sortable(ColumnWidth(NormalTaebul))));
 
-/*
-const Header = ({ title, sortOrder, onSortClick, columnKey, sortable, onSelectClick }) => {
+const MyHeader = ({ title, sortOrder, onSortClick, columnKey, sortable, onSelectClick }) => {
     if (!sortable) {
         return (
             <div className={styles.cell}>
@@ -64,7 +61,6 @@ const Header = ({ title, sortOrder, onSortClick, columnKey, sortable, onSelectCl
         </div>
     );
 };
-*/
 
 const propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
@@ -90,34 +86,24 @@ export default class Dashboard extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        const Header = d => (
-            <div className={styles.cell}>
-                {d.title}
-            </div>
-        );
-
         this.columns = [
             {
                 key: 'firstName',
                 title: 'First Name',
 
                 headerRendererParams: this.headerRendererParams,
-                headerRenderer: Header,
+                headerRenderer: MyHeader,
 
                 cellRendererParams: ({ datum, column }) => ({
                     firstName: datum.firstName,
                     width: column.width,
                 }),
 
-                cellRenderer: (d) => {
-                    const { firstName } = d;
-
-                    return (
-                        <div className={styles.cell}>
-                            {firstName}
-                        </div>
-                    );
-                },
+                cellRenderer: ({ firstName }) => (
+                    <div className={styles.cell}>
+                        {firstName}
+                    </div>
+                ),
 
                 comparator: (foo, bar, d) => compareString(foo.firstName, bar.firstName, d),
             },
@@ -126,13 +112,17 @@ export default class Dashboard extends React.PureComponent {
                 title: 'Last Name',
 
                 headerRendererParams: this.headerRendererParams,
-                headerRenderer: Header,
+                headerRenderer: MyHeader,
 
                 cellRendererParams: ({ datum, column }) => ({
                     lastName: datum.lastName,
                     width: column.width,
                 }),
-                cellRenderer: ({ lastName }) => <div className={styles.cell}>{lastName}</div>,
+                cellRenderer: ({ lastName }) => (
+                    <div className={styles.cell}>
+                        {lastName}
+                    </div>
+                ),
 
                 comparator: (foo, bar, d) => compareString(foo.lastName, bar.lastName, d),
             },
@@ -141,7 +131,7 @@ export default class Dashboard extends React.PureComponent {
                 title: 'Name',
 
                 headerRendererParams: this.headerRendererParams,
-                headerRenderer: Header,
+                headerRenderer: MyHeader,
 
                 cellRendererParams: ({ datum, column }) => ({
                     lastName: datum.lastName,
@@ -149,7 +139,9 @@ export default class Dashboard extends React.PureComponent {
                     width: column.width,
                 }),
                 cellRenderer: ({ lastName, firstName }) => (
-                    <div className={styles.cell}>{lastName}, {firstName}</div>
+                    <div className={styles.cell}>
+                        {lastName}, {firstName}
+                    </div>
                 ),
             },
             {
@@ -157,7 +149,7 @@ export default class Dashboard extends React.PureComponent {
                 title: 'Salary',
 
                 headerRendererParams: this.headerRendererParams,
-                headerRenderer: Header,
+                headerRenderer: MyHeader,
 
                 cellRendererParams: ({ datum, column }) => ({
                     value: datum.salary,
@@ -201,11 +193,14 @@ export default class Dashboard extends React.PureComponent {
 
                 searchString: '',
 
+                selectedKeys: {},
+
                 columnWidths: {
                     firstName: 200,
                     lastName: 200,
                     name: 240,
                     salary: 160,
+                    _select: 100,
                 },
             },
         };
