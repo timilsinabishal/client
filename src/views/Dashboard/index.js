@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import Sortable from '#rscv/Taebul/Sortable';
 import Searchable from '#rscv/Taebul/Searchable';
 import BoundError from '#rscg/BoundError';
-import TextInput from '#rsci/TextInput';
+import SearchInput from '#rsci/SearchInput';
 import Numeral from '#rscv/Numeral';
 import NormalTaebul from '#rscv/Taebul';
 import ColumnWidth from '#rscv/Taebul/ColumnWidth';
@@ -235,12 +235,16 @@ export default class Dashboard extends React.PureComponent {
 
         return (
             <div className={styles.dashboard}>
-                <p className={styles.header}>
+                <h3 className={styles.header}>
                     { currentUserActiveProject.title }
-                </p>
-                <TextInput
+                </h3>
+                <SearchInput
+                    className={styles.search}
+                    label="Search"
+                    placeholder="Anything"
                     onChange={this.handleSearchChange}
                     value={this.state.settings.searchString}
+                    showHintAndError={false}
                 />
                 <Taebul
                     data={this.state.data}
