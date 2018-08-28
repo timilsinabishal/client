@@ -760,7 +760,8 @@
         "-92290017": "Failed to create clusters.",
         "-72859218": "Project options",
         "-45091634": "Failed to get project options.",
-        "-44183195": "Modifying this framework may affect {count} entries. Are you sure you want to save these changes?"
+        "-44183195": "Modifying this framework may affect {count} entries. Are you sure you want to save these changes?",
+        "-68865912": "Default"
     },
     "links": {
         "browserExtension": {
@@ -1648,7 +1649,8 @@
             "regionUpdate": 996,
             "regionUpdateOverridden": 982,
             "projectOptions": -72859218,
-            "projectOptionsGetFailure": -45091634
+            "projectOptionsGetFailure": -45091634,
+            "saveButtonLabel": 25
         },
         "connector": {
             "noConnectorsLabel": 1115,
@@ -2115,6 +2117,9 @@
         },
         "editEntry.list": {
             "noEntriesText": 543
+        },
+        "framework.scaleWidget": {
+            "defaultButtonLabel": -68865912
         }
     }
 }
