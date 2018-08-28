@@ -3,6 +3,8 @@ import React from 'react';
 
 import Faram, {
     requiredCondition,
+    createBooleanFold,
+    createBooleanUnfold,
 } from '#rsci/Faram';
 import FaramList from '#rsci/Faram/FaramList';
 import NonFieldErrors from '#rsci/NonFieldErrors';
@@ -41,6 +43,9 @@ export default class ScaleFrameworkList extends React.PureComponent {
 
     static keyExtractor = scaleUnit => scaleUnit.key;
 
+    static foldScaleUnits = createBooleanFold(ScaleFrameworkList.keyExtractor)
+    static unfoldScaleUnits = createBooleanUnfold(ScaleFrameworkList.keyExtractor)
+
     static rendererParams = (key, elem, i) => ({
         index: i,
     })
@@ -48,6 +53,7 @@ export default class ScaleFrameworkList extends React.PureComponent {
     static schema = {
         fields: {
             title: [requiredCondition],
+            defaultScaleUnit: [],
             scaleUnits: {
                 validation: (scaleUnits) => {
                     const errors = [];
@@ -90,15 +96,14 @@ export default class ScaleFrameworkList extends React.PureComponent {
             title,
             data: {
                 scaleUnits = emptyList,
-                value: defaultScaleUnit,
+                defaultScaleUnit,
             },
         } = props;
 
         this.state = {
-            // TODO: Implement defaultScaleUnit
-            defaultScaleUnit,
             faramValues: {
                 title,
+                defaultScaleUnit,
                 scaleUnits,
             },
             faramErrors: {},
@@ -164,7 +169,12 @@ export default class ScaleFrameworkList extends React.PureComponent {
                             selectOnFocus
                         />
                         <div className={styles.scaleUnits}>
-                            <FaramList faramElementName="scaleUnits">
+                            <FaramList
+                                faramElementName="scaleUnits"
+                                faramFoldKey="defaultScaleUnit"
+                                faramFold={ScaleFrameworkList.foldScaleUnits}
+                                faramUnfold={ScaleFrameworkList.unfoldScaleUnits}
+                            >
                                 <NonFieldErrors
                                     className={styles.nonFieldErrors}
                                     faramElement
