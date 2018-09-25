@@ -1,3 +1,5 @@
+import _ts from '#ts';
+
 const emptyObject = {};
 
 const getPillarOptions = widgetData => (
@@ -18,11 +20,11 @@ const getSubpillarOptions = widgetData => (
 );
 
 const containsPillar = {
-    title: 'Contains pillar',
+    title: _ts('conditional.matrix1d', 'containsPillarTitle'),
     attributes: [{
         key: 'pillar',
         type: 'select',
-        title: 'Pillar',
+        title: _ts('conditional.matrix1d', 'pillarTitle'),
         options: getPillarOptions,
         keySelector: d => d.key,
         labelSelector: d => d.title,
@@ -34,11 +36,11 @@ const containsPillar = {
 };
 
 const containsSubpillar = {
-    title: 'Contains subpillar',
+    title: _ts('conditional.matrix1d', 'containsSubpillarTitle'),
     attributes: [{
         key: 'subpillar',
         type: 'select',
-        title: 'Subpillar',
+        title: _ts('conditional.matrix1d', 'subpillarTitle'),
         options: getSubpillarOptions,
         keySelector: d => d.key,
         labelSelector: d => d.title,

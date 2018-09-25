@@ -1,3 +1,5 @@
+import _ts from '#ts';
+
 const isObjectEmpty = obj => (
     Object.keys(obj).length === 0
 );
@@ -39,11 +41,11 @@ const getSubsectorOptions = ({ sectors = emptyArray } = {}) => (
 );
 
 const containsDimension = {
-    title: 'Contains dimension',
+    title: _ts('conditional.matrix2d', 'containsDimensionTitle'),
     attributes: [{
         key: 'dimension',
         type: 'select',
-        title: 'Dimension',
+        title: _ts('conditional.matrix2d', 'dimensionTitle'),
         options: getDimensionOptions,
         keySelector: d => d.key,
         labelSelector: d => d.title,
@@ -61,11 +63,11 @@ const containsDimension = {
 };
 
 const containsSubdimension = {
-    title: 'Contains subdimension',
+    title: _ts('conditional.matrix2d', 'containsSubdimensionTitle'),
     attributes: [{
         key: 'subdimension',
         type: 'select',
-        title: 'Subdimension',
+        title: _ts('conditional.matrix2d', 'subdimensionTitle'),
         options: getSubdimensionOptions,
         keySelector: d => d.key,
         labelSelector: d => d.title,
@@ -81,11 +83,11 @@ const containsSubdimension = {
 };
 
 const containsSector = {
-    title: 'Contains sector',
+    title: _ts('conditional.matrix2d', 'containsSectorTitle'),
     attributes: [{
         key: 'sector',
         type: 'select',
-        title: 'Sector',
+        title: _ts('conditional.matrix2d', 'sectorTitle'),
         options: getSectorOptions,
         keySelector: d => d.key,
         labelSelector: d => d.title,
@@ -105,11 +107,11 @@ const containsSector = {
 };
 
 const containsSubsector = {
-    title: 'Contains subsector',
+    title: _ts('conditional.matrix2d', 'containsSubsectorTitle'),
     attributes: [{
         key: 'subsector',
         type: 'select',
-        title: 'Subsector',
+        title: _ts('conditional.matrix2d', 'subsectorTitle'),
         options: getSubsectorOptions,
         keySelector: d => d.key,
         labelSelector: d => d.title,

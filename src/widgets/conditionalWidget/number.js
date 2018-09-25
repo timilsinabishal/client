@@ -1,8 +1,10 @@
+import _ts from '#ts';
+
 const isLessThan = {
-    title: 'Is less than',
+    title: _ts('conditional.number', 'isLessThanTitle'),
     attributes: [{
         key: 'value',
-        title: 'Value',
+        title: _ts('conditional.number', 'isLessThanTitle'),
         type: 'number',
     }],
     test: (data, attributes) => (
@@ -11,11 +13,11 @@ const isLessThan = {
 };
 
 const isGreaterThan = {
-    title: 'Is greater than',
+    title: _ts('conditional.number', 'isGreaterThanTitle'),
     attributes: [{
         key: 'value',
-        title: 'Value',
         type: 'number',
+        title: _ts('conditional.number', 'isGreaterThanTitle'),
     }],
     test: (data, attributes) => (
         data.value && data.value > attributes.value
@@ -23,10 +25,10 @@ const isGreaterThan = {
 };
 
 const isEqualTo = {
-    title: 'Is equal to',
+    title: _ts('conditional.number', 'isEqualThanTitle'),
     attributes: [{
         key: 'value',
-        title: 'Value',
+        title: _ts('conditional.number', 'isEqualThanTitle'),
         type: 'number',
     }],
     test: (data, attributes) => (

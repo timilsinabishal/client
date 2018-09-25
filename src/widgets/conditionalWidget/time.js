@@ -1,3 +1,5 @@
+import _ts from '#ts';
+
 const decodeTimeInMinutes = (value, separator = ':') => {
     if (!value) {
         return 0;
@@ -11,11 +13,11 @@ const compareTime = (a, b) => (
 );
 
 const isEqualTo = {
-    title: 'Is equal to',
+    title: _ts('conditional.time', 'isEqualToTitle'),
     attributes: [{
         key: 'value',
         type: 'time',
-        title: 'Is equal to',
+        title: _ts('conditional.time', 'isEqualToTitle'),
     }],
     test: ({ value } = {}, { value: attrValue } = {}) => (
         compareTime(value, attrValue) === 0
@@ -23,11 +25,11 @@ const isEqualTo = {
 };
 
 const after = {
-    title: 'After',
+    title: _ts('conditional.time', 'afterTimeTitle'),
     attributes: [{
         key: 'value',
         type: 'time',
-        title: 'After',
+        title: _ts('conditional.time', 'afterTimeTitle'),
     }],
     test: ({ value } = {}, { value: attrValue } = {}) => (
         compareTime(value, attrValue) > 0
@@ -35,11 +37,11 @@ const after = {
 };
 
 const before = {
-    title: 'Before',
+    title: _ts('conditional.time', 'beforeTimeTitle'),
     attributes: [{
         key: 'value',
         type: 'time',
-        title: 'Before',
+        title: _ts('conditional.time', 'beforeTimeTitle'),
     }],
     test: ({ value } = {}, { value: attrValue } = {}) => (
         compareTime(value, attrValue) < 0
@@ -47,17 +49,17 @@ const before = {
 };
 
 const isInBetween = {
-    title: 'In in between',
+    title: _ts('conditional.time', 'isInBetweenTitle'),
     attributes: [
         {
             key: 'minValue',
             type: 'time',
-            title: 'After',
+            title: _ts('conditional.time', 'minTimeTitle'),
         },
         {
             key: 'maxValue',
             type: 'time',
-            title: 'Before',
+            title: _ts('conditional.time', 'maxTimeTitle'),
         },
     ],
     test: ({ value } = {}, { minValue, maxValue } = {}) => (

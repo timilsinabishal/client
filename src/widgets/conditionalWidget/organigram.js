@@ -1,3 +1,4 @@
+import _ts from '#ts';
 import memoize from 'memoize-one';
 
 const emptyObject = {};
@@ -43,11 +44,11 @@ const getOrganigramOptions = memoize((widgetData = {}) => (
 ));
 
 const isEqualTo = {
-    title: 'Is equal to',
+    title: _ts('conditional.organigram', 'isEqualToTitle'),
     attributes: [{
         key: 'selection',
         type: 'select',
-        title: 'Value',
+        title: _ts('conditional.organigram', 'isEqualToTitle'),
         options: getOrganigramOptions,
         keySelector: d => d.id,
         labelSelector: d => d.name,
@@ -58,11 +59,11 @@ const isEqualTo = {
 };
 
 const isDescendentOf = {
-    title: 'has descendent of',
+    title: _ts('conditional.organigram', 'hasDescendentOfTitle'),
     attributes: [{
         key: 'selection',
         type: 'select',
-        title: 'has descendent of',
+        title: _ts('conditional.organigram', 'hasDescendentOfTitle'),
         options: getOrganigramOptions,
         keySelector: d => d.id,
         labelSelector: d => d.name,

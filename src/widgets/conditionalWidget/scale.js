@@ -1,3 +1,5 @@
+import _ts from '#ts';
+
 const emptyArray = [];
 
 const getScaleOptions = widgetData => (
@@ -5,11 +7,11 @@ const getScaleOptions = widgetData => (
 );
 
 const isEqualTo = {
-    title: 'Is equal to',
+    title: _ts('conditional.scale', 'isEqualToTitle'),
     attributes: [{
         key: 'scale',
         type: 'select',
-        title: 'Scale',
+        title: _ts('conditional.scale', 'isEqualToTitle'),
         options: getScaleOptions,
         keySelector: d => d.key,
         labelSelector: d => d.label,
@@ -20,11 +22,11 @@ const isEqualTo = {
 };
 
 const isGreaterThan = {
-    title: 'Is greater than',
+    title: _ts('conditional.scale', 'isGreaterThanTitle'),
     attributes: [{
         key: 'scale',
         type: 'select',
-        title: 'Scale',
+        title: _ts('conditional.scale', 'isGreaterThanTitle'),
         options: getScaleOptions,
         keySelector: d => d.key,
         labelSelector: d => d.label,
@@ -36,11 +38,11 @@ const isGreaterThan = {
 };
 
 const isLessThan = {
-    title: 'Is less than',
+    title: _ts('conditional.scale', 'isLessThanTitle'),
     attributes: [{
         key: 'scale',
         type: 'select',
-        title: 'Scale',
+        title: _ts('conditional.scale', 'isLessThanTitle'),
         options: getScaleOptions,
         keySelector: d => d.key,
         labelSelector: d => d.label,
@@ -52,12 +54,12 @@ const isLessThan = {
 };
 
 const isInBetween = {
-    title: 'Is in between',
+    title: _ts('conditional.scale', 'isInBetweenTitle'),
     attributes: [
         {
             key: 'lowerScale',
             type: 'select',
-            title: 'Lower Scale',
+            title: _ts('conditional.scale', 'lowerScaleTitle'),
             options: getScaleOptions,
             keySelector: d => d.key,
             labelSelector: d => d.label,
@@ -65,7 +67,7 @@ const isInBetween = {
         {
             key: 'upperScale',
             type: 'select',
-            title: 'Upper Scale',
+            title: _ts('conditional.scale', 'upperScaleTitle'),
             options: getScaleOptions,
             keySelector: d => d.key,
             labelSelector: d => d.label,

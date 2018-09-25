@@ -1,11 +1,12 @@
+import _ts from '#ts';
 import { compareDate } from '#rsu/common';
 
 const isEqualTo = {
-    title: 'Is equal to',
+    title: _ts('conditional.date', 'isEqualToTitle'),
     attributes: [{
         key: 'value',
         type: 'date',
-        title: 'Is equal to',
+        title: _ts('conditional.date', 'isEqualToTitle'),
     }],
     test: ({ value } = {}, { value: attrValue } = {}) => (
         compareDate(value, attrValue) === 0
@@ -13,11 +14,11 @@ const isEqualTo = {
 };
 
 const after = {
-    title: 'After',
+    title: _ts('conditional.date', 'afterDateTitle'),
     attributes: [{
         key: 'value',
         type: 'date',
-        title: 'After date',
+        title: _ts('conditional.date', 'afterDateTitle'),
     }],
     test: ({ value } = {}, { value: attrValue } = {}) => (
         compareDate(value, attrValue) > 0
@@ -25,11 +26,11 @@ const after = {
 };
 
 const before = {
-    title: 'Before',
+    title: _ts('conditional.date', 'beforeDateTitle'),
     attributes: [{
         key: 'value',
         type: 'date',
-        title: 'Before date',
+        title: _ts('conditional.date', 'beforeDateTitle'),
     }],
     test: ({ value } = {}, { value: attrValue } = {}) => (
         compareDate(value, attrValue) < 0
@@ -37,17 +38,17 @@ const before = {
 };
 
 const isInBetween = {
-    title: 'In in between',
+    title: _ts('conditional.date', 'isInBetweenTitle'),
     attributes: [
         {
             key: 'minValue',
             type: 'date',
-            title: 'After date',
+            title: _ts('conditional.date', 'minDateTitle'),
         },
         {
             key: 'maxValue',
             type: 'date',
-            title: 'Before date',
+            title: _ts('conditional.date', 'maxDateTitle'),
         },
     ],
     test: ({ value } = {}, { minValue, maxValue } = {}) => (

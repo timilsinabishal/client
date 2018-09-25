@@ -1,3 +1,5 @@
+import _ts from '#ts';
+
 const emptyArray = [];
 
 const getSelectionOptions = ({ options } = {}) => (
@@ -5,11 +7,11 @@ const getSelectionOptions = ({ options } = {}) => (
 );
 
 const isSelected = {
-    title: 'Is selected',
+    title: _ts('conditional.select', 'isSelectedTitle'),
     attributes: [{
         key: 'selection',
         type: 'select',
-        title: 'Selection',
+        title: _ts('conditional.select', 'selectionTitle'),
         options: getSelectionOptions,
         keySelector: d => d.key,
         labelSelector: d => d.label,
