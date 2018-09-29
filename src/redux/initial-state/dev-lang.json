@@ -712,6 +712,11 @@
         "12502": "Clone framework",
         "12503": "Word categories",
         "12504": "Clone category editor",
+        
+        "12550": "Word category title",
+        "12551": "Enter title for word category",
+
+
         "-12279953": "Entry Cleared",
         "-94068330": "All local entries were cleared because associated analysis framework was removed.",
         "-4983139": "Remove lead group",
@@ -910,6 +915,8 @@
             "requestSchemaLabel": 7037
         },
         "categoryEditor": {
+            "titleInputTitle": 12550,
+            "titleInputPlaceholder": 12551,
             "saveCeButtonLabel": 25,
             "headerCategoryLabel": 401,
             "selectCategoryPlaceholder": 402,
