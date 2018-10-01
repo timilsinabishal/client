@@ -3,6 +3,7 @@ import update from '#rsu/immutable-update';
 // TYPE
 
 export const L__SET_LEADS = 'siloDomainData/SET_LEADS';
+export const L__APPEND_LEADS = 'siloDomainData/APPEND_LEADS';
 export const L__PATCH_LEAD = 'siloDomainData/PATCH_LEAD';
 export const L__REMOVE_LEAD = 'siloDomainData/REMOVE_LEAD';
 
@@ -12,6 +13,7 @@ export const L__UNSET_FILTER = 'siloDomainData/UNSET_FILTER';
 export const L__SET_ACTIVE_PAGE = 'siloDomainData/SET_LEAD_PAGE_ACTIVE_PAGE';
 export const L__SET_ACTIVE_SORT = 'siloDomainData/SET_LEAD_PAGE_ACTIVE_SORT';
 export const L__SET_LEADS_PER_PAGE = 'siloDomainData/SET_LEADS_PER_PAGE';
+export const L__SET_VIEW = 'siloDomainData/SET_LEAD_PAGE_VIEW';
 
 // ACTION-CREATOR
 
@@ -34,6 +36,11 @@ export const setLeadPageActiveSortAction = ({ activeSort }) => ({
     activeSort,
 });
 
+export const setLeadPageViewAction = ({ view }) => ({
+    type: L__SET_VIEW,
+    view,
+});
+
 export const setLeadPageLeadsPerPageAction = ({ leadsPerPage }) => ({
     type: L__SET_LEADS_PER_PAGE,
     leadsPerPage,
@@ -41,6 +48,12 @@ export const setLeadPageLeadsPerPageAction = ({ leadsPerPage }) => ({
 
 export const setLeadsAction = ({ leads, totalLeadsCount }) => ({
     type: L__SET_LEADS,
+    leads,
+    totalLeadsCount,
+});
+
+export const appendLeadsAction = ({ leads, totalLeadsCount }) => ({
+    type: L__APPEND_LEADS,
     leads,
     totalLeadsCount,
 });
@@ -111,6 +124,20 @@ const leadViewSetActiveSort = (state, action) => {
     return update(state, settings);
 };
 
+const leadViewSetView = (state, action) => {
+    const { view } = action;
+    const { activeProject } = state;
+    const settings = {
+        leadPage: {
+            [activeProject]: { $auto: {
+                view: { $set: view },
+                activePage: { $set: 1 },
+            } },
+        },
+    };
+    return update(state, settings);
+};
+
 const leadViewSetLeadsPerPage = (state, action) => {
     const { leadsPerPage } = action;
     const { activeProject } = state;
@@ -132,6 +159,20 @@ const setLeads = (state, action) => {
         leadPage: {
             [activeProject]: { $auto: {
                 leads: { $set: leads },
+                totalLeadsCount: { $set: totalLeadsCount },
+            } },
+        },
+    };
+    return update(state, settings);
+};
+
+const appendLeads = (state, action) => {
+    const { activeProject } = state;
+    const { leads, totalLeadsCount } = action;
+    const settings = {
+        leadPage: {
+            [activeProject]: { $auto: {
+                leads: { $push: leads },
                 totalLeadsCount: { $set: totalLeadsCount },
             } },
         },
@@ -175,8 +216,10 @@ const reducers = {
     [L__SET_ACTIVE_PAGE]: leadViewSetActivePage,
     [L__SET_ACTIVE_SORT]: leadViewSetActiveSort,
     [L__SET_LEADS_PER_PAGE]: leadViewSetLeadsPerPage,
+    [L__SET_VIEW]: leadViewSetView,
 
     [L__SET_LEADS]: setLeads,
+    [L__APPEND_LEADS]: appendLeads,
     [L__PATCH_LEAD]: patchLead,
     [L__REMOVE_LEAD]: removeLead,
 };

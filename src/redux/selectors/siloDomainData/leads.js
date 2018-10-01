@@ -43,3 +43,8 @@ export const totalLeadsCountForProjectSelector = createSelector(
     leadPageForProjectSelector,
     leadPage => leadPage.totalLeadsCount || 0,
 );
+
+export const leadPageViewSelector = createSelector(
+    leadPageForProjectSelector,
+    leadPage => leadPage.view || 'grid',
+);

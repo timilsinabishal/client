@@ -159,6 +159,35 @@ $width-assignee-column: 96px;
         }
     }
 
+    .lead-grids {
+        background-color: $color-background-row;
+        padding: $spacing-medium 0;
+        height: 100%;
+        overflow: auto;
+    }
+
+    .active {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .fixed-tabs {
+        margin-right: $spacing-extra-large;
+
+        :global {
+            .fixed-tab {
+                border-bottom: none;
+                font-size: $font-size-extra-large;
+
+                &.active {
+                    background-color: $color-background-hover-light;
+                    color: $color-accent;
+                }
+            }
+        }
+    }
+
     .footer {
         @include background-color($color-background-alt);
         display: flex;

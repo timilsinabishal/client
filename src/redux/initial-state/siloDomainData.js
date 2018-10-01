@@ -145,6 +145,7 @@ const initialSiloDomainData = {
         1: {
             activeSort: '-created_at',
             activePage: 1,
+            view: 'table',
             viewMode: 'viz',
             filters: {
             },
