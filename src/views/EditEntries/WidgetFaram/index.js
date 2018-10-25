@@ -152,6 +152,7 @@ export default class WidgetFaram extends React.PureComponent {
             entryType,
             excerpt,
             image,
+            dataSeries,
         } = entryAccessor.data(entry) || {};
 
         const Widget = fetchWidgetTagComponent(
@@ -172,6 +173,7 @@ export default class WidgetFaram extends React.PureComponent {
                         entryType={entryType}
                         excerpt={excerpt}
                         image={image}
+                        dataSeries={dataSeries}
 
                         onExcerptChange={this.handleExcerptChange}
                         onExcerptCreate={this.handleExcerptCreate}
@@ -192,6 +194,7 @@ export default class WidgetFaram extends React.PureComponent {
                         entryType={entryType}
                         excerpt={excerpt}
                         image={image}
+                        dataSeries={dataSeries}
                     />
                 );
                 break;

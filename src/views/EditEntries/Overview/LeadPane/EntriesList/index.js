@@ -47,6 +47,7 @@ export default class EntriesList extends React.PureComponent {
             excerpt,
             order,
             image,
+            dataSeries,
         } = values;
 
         if (entryType === 'image') {
@@ -56,6 +57,14 @@ export default class EntriesList extends React.PureComponent {
                     src={image}
                     alt={_ts('editEntry.overview.leftpane.entryList', 'altLabel')}
                 />
+            );
+        }
+
+        if (entryType === 'dataSeries') {
+            return (
+                <div>
+                    {dataSeries.title}
+                </div>
             );
         }
 
