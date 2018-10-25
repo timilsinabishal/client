@@ -712,6 +712,14 @@
         "12502": "Clone framework",
         "12503": "Word categories",
         "12504": "Clone category editor",
+        "15000": "Quantitative Analysis",
+        "15001": "Are you sure you want to delete these table sheets? All changes will be lost.",
+        "15002": "Edit table field",
+        "15003": "Separator",
+        "15004": "Delimiter",
+        "15005": "File type",
+        "15006": "Extract",
+        "15007": "Extract Tabular Data from Lead",
         "-12279953": "Entry Cleared",
         "-94068330": "All local entries were cleared because associated analysis framework was removed.",
         "-4983139": "Remove lead group",
@@ -1510,6 +1518,12 @@
             "applyFilterLabel": 427,
             "noFiltersMessage": 1139
         },
+        "addLeads.tabular": {
+            "title": 15007,
+            "delimiterLabel": 15004,
+            "fileTypeLabel": 15005,
+            "extractLabel": 15006
+        },
         "register": {
             "checkYourEmailText": 818,
             "firstNameLabel": 150,
@@ -2110,6 +2124,7 @@
             "assistedTabLabel": 517,
             "originalTabLabel": 518,
             "tabularTabLabel": 142,
+            "quantitativeTabLabel": 15000,
             "imagesTabLabel": 519,
             "entriesTabLabel": 15,
             "unrecognizedLeadMessage": 140
@@ -2260,6 +2275,18 @@
             "widgetSelectionLabel": -31256073,
             "rootNodeLabel": 5552,
             "addFromGeoLabel": -50186668
+        },
+        "tabular": {
+            "title": 15000,
+            "deleteMessage": 15001
+        },
+        "tabular.editField": {
+            "title": 15002,
+            "separatorLabel": 15003,
+            "titleLabel": 13,
+            "typeLabel": 21,
+            "cancelLabel": 61,
+            "submitLabel": 826
         }
     }
 }
