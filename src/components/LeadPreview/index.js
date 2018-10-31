@@ -11,14 +11,20 @@ import _ts from '#ts';
 
 import styles from './styles.scss';
 
+const noop = () => {};
+
 const propTypes = {
     lead: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    showUrl: PropTypes.bool,
+    showScreenshot: PropTypes.bool,
     handleScreenshot: PropTypes.func.isRequired,
     showScreenshot: PropTypes.boolean,
 };
 
 const defaultProps = {
-    showScreenshot: false,
+    showUrl: true,
+    showScreenshot: true,
+    handleScreenshot: noop,
 };
 
 export default class LeadPreview extends React.PureComponent {
@@ -35,6 +41,7 @@ export default class LeadPreview extends React.PureComponent {
         const {
             lead,
             showScreenshot,
+            showUrl,
         } = this.props;
         const { sourceType: type, url, attachment } = lead;
 
@@ -45,7 +52,7 @@ export default class LeadPreview extends React.PureComponent {
                     url={url}
                     onScreenshotCapture={this.props.handleScreenshot}
                     showScreenshot={showScreenshot}
-                    showUrl
+                    showUrl={showUrl}
                 />
             );
         } else if (LeadPreview.isTypeWithAttachment(type) && attachment) {
@@ -55,7 +62,7 @@ export default class LeadPreview extends React.PureComponent {
                     galleryId={attachment.id}
                     onScreenshotCapture={this.props.handleScreenshot}
                     showScreenshot={showScreenshot}
-                    showUrl
+                    showUrl={showUrl}
                 />
             );
         }

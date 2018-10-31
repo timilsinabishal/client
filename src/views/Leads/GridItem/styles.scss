@@ -214,5 +214,12 @@ $radius-lead: 4px;
             z-index: 1;
         }
     }
-
+    
 }
+
+.modal {
+    border-radius: 3px;
+    height: calc(100vh - 20px);
+    overflow: auto;
+}
+

@@ -27,7 +27,7 @@ export default class LeadGrid extends React.Component {
     render() {
         const { loading, onEndReached, leads, ...otherProps } = this.props;
 
-        const columnWidth = 300;
+        const columnWidth = 280;
         const columnGutter = 40;
 
         const items = leads.map(lead => (

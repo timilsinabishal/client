@@ -3,7 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import Cloak from '#components/Cloak';
+import DetectOutsideClick from '#components/DetectOutsideClick';
 import Button from '#rsca/Button';
+import Modal from '#rscv/Modal';
+import LeadPreview from '#components/LeadPreview';
 import DangerConfirmButton from '#rsca/ConfirmButton/DangerConfirmButton';
 import {
     iconNames,
@@ -52,6 +55,10 @@ export default class GridItem extends React.PureComponent {
         // item is wrapped by masonry
         const imgHeight = Math.max((width * thumbnailHeight) / thumbnailWidth, minHeight);
         return imgHeight;
+    }
+
+    state = {
+        showPreview: false,
     }
 
     get links() {
@@ -151,25 +158,12 @@ export default class GridItem extends React.PureComponent {
         return null;
     }
 
-
-    render() {
-        const { lead, className, onSearchSimilarLead, onRemoveLead, style } = this.props;
+    renderActions = () => {
+        const { lead, onSearchSimilarLead, onRemoveLead } = this.props;
         const MarkAction = this.renderMarkAction;
 
-        const isProcessed = lead.status === 'processed';
-
         return (
-            <div
-                className={classNames(className, styles.lead)}
-                style={{ ...style, ...this.getInlineStyle() }}
-            >
-                <div className={classNames({
-                    [styles.documentTypePending]: !isProcessed,
-                    [styles.documentTypeProcessed]: isProcessed,
-                })}
-                >
-                    <i className={this.mimeIcon} />
-                </div>
+            <React.Fragment>
                 <div className={styles.mainActions}>
                     <Cloak
                         // TODO: fix after testing
@@ -197,7 +191,6 @@ export default class GridItem extends React.PureComponent {
                         transparent
                         iconName={iconNames.search}
                     />
-
                     <Link
                         className={styles.actionButton}
                         title={_ts('leads', 'editLeadButtonTitle')}
@@ -215,13 +208,39 @@ export default class GridItem extends React.PureComponent {
                     />
                     <Button
                         tabIndex="-1"
-                        title={_ts('leads', 'searchSimilarLeadButtonTitle')}
-                        onClick={() => onSearchSimilarLead(lead)}
+                        title={_ts('leads', 'searchSimilarLeadButtonTitle')} // TODO
+                        onClick={() => this.setState({ showPreview: true })}
                         transparent
                         iconName={iconNames.openLink}
                     />
 
                 </div>
+            </React.Fragment>
+        );
+    }
+
+
+    render() {
+        const { lead, className, onSearchSimilarLead, onRemoveLead, style } = this.props;
+        const Actions = this.renderActions;
+
+        const isProcessed = lead.status === 'processed';
+
+        return (
+            <div
+                className={classNames(className, styles.lead)}
+                style={{ ...style, ...this.getInlineStyle() }}
+            >
+                <div className={classNames({
+                    [styles.documentTypePending]: !isProcessed,
+                    [styles.documentTypeProcessed]: isProcessed,
+                })}
+                >
+                    <i className={this.mimeIcon} />
+                </div>
+
+                <Actions />
+
                 <div className={styles.leadInfo}>
                     <span className={styles.timeFrom}>{timeFrom(lead.createdAt)}</span>
                     <p className={styles.title}>{lead.title}</p>
@@ -253,6 +272,22 @@ export default class GridItem extends React.PureComponent {
                         </div>
                     </div>
                 </div>
+
+                {
+                    this.state.showPreview &&
+                        <Modal className={styles.modal}>
+                            <DetectOutsideClick
+                                onOutsideClicked={() => this.setState({ showPreview: false })}
+                                detectESC
+                            >
+                                <LeadPreview
+                                    lead={lead}
+                                    showScreenshot={false}
+                                />
+                            </DetectOutsideClick>
+                        </Modal>
+
+                }
             </div>
         );
     }
