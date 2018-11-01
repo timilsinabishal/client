@@ -6,8 +6,10 @@ import {
     Redirect,
 } from 'react-router-dom';
 
+import Button from '#rsca/Button';
 import FormattedDate from '#rscv/FormattedDate';
 import LoadingAnimation from '#rscv/LoadingAnimation';
+import SelectInput from '#rsci/SelectInput';
 import Pager from '#rscv/Pager';
 import RawTable from '#rscv/RawTable';
 import TableHeader from '#rscv/TableHeader';
@@ -377,6 +379,17 @@ export default class Leads extends React.PureComponent {
         this.props.setLeadPageActivePage({ activePage: activePage + 1 });
     }
 
+    getSortDetails = () => {
+        const { activeSort } = this.props;
+
+        if (!activeSort) {
+            return [iconNames.chevronDown, ''];
+        } else if (activeSort.slice(0, 1) === '-') {
+            return [iconNames.chevronDown, activeSort.slice(1)];
+        }
+        return [iconNames.chevronUp, activeSort];
+    }
+
     handleSearchSimilarLead = (row) => {
         this.props.setLeadPageFilter({
             filters: {
@@ -474,6 +487,18 @@ export default class Leads extends React.PureComponent {
         this.props.setLeadPageActiveSort({ activeSort });
     }
 
+    handleSortOrderClick = () => {
+        let { activeSort } = this.props;
+        if (!activeSort) {
+            return;
+        } else if (activeSort.slice(0, 1) === '-') {
+            activeSort = activeSort.slice(1);
+        } else {
+            activeSort = `-${activeSort}`;
+        }
+        this.props.setLeadPageActiveSort({ activeSort });
+    }
+
     renderMimeType = ({ row }) => {
         let icon = iconNames.documentText;
         let url;
@@ -555,6 +580,8 @@ export default class Leads extends React.PureComponent {
             { projectId: activeProject },
         );
 
+        const [sortDirIcon, sortKey] = this.getSortDetails();
+
         return (
             <footer className={styles.footer}>
                 <div className={styles.linkContainer}>
@@ -589,17 +616,43 @@ export default class Leads extends React.PureComponent {
                         }
                     />
                 </div>
-                { this.props.view === TABLE_VIEW &&
-                <div className={styles.pagerContainer}>
-                    <Pager
-                        activePage={activePage}
-                        className={styles.pager}
-                        itemsCount={totalLeadsCount}
-                        maxItemsPerPage={this.props.leadsPerPage}
-                        onPageClick={this.handlePageClick}
-                        onItemsPerPageChange={this.handleLeadsPerPageChange}
-                    />
-                </div>
+                { this.props.view === TABLE_VIEW ?
+                    (
+                        <div className={styles.pagerContainer}>
+                            <Pager
+                                activePage={activePage}
+                                className={styles.pager}
+                                itemsCount={totalLeadsCount}
+                                maxItemsPerPage={this.props.leadsPerPage}
+                                onPageClick={this.handlePageClick}
+                                onItemsPerPageChange={this.handleLeadsPerPageChange}
+                            />
+                        </div>
+                    )
+                    :
+                    (
+                        <div className={styles.sortingContainer}>
+                            <p>Sorted by:</p>
+                            <SelectInput
+                                faramElementName="assignee"
+                                keySelector={k => k.key}
+                                labelSelector={r => r.label}
+                                value={sortKey}
+                                options={this.headers.filter(h => h.sortable)}
+                                onChange={
+                                    key => this.props.setLeadPageActiveSort({ activeSort: key })
+                                }
+                                placeholder={_ts('leads', 'placeholderAnybody')}
+                                showHintAndError={false}
+                            />
+                            <Button
+                                tabIndex="-1"
+                                iconName={sortDirIcon}
+                                onClick={this.handleSortOrderClick}
+                                transparent
+                            />
+                        </div>
+                    )
                 }
             </footer>
         );

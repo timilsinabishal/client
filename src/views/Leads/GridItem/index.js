@@ -21,11 +21,13 @@ import {
 import _ts from '#ts';
 import { timeFrom } from '#utils/common';
 
+import leadThumbnail from '#resources/img/lead-thumbnail.png';
 import styles from './styles.scss';
 
 const propTypes = {
     className: PropTypes.string,
     lead: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     activeProject: PropTypes.number.isRequired,
     onSearchSimilarLead: PropTypes.func.isRequired,
     onRemoveLead: PropTypes.func.isRequired,
@@ -36,6 +38,7 @@ const propTypes = {
 
 const defaultProps = {
     className: '',
+    style: {},
     minHeight: 295,
 };
 
@@ -110,21 +113,19 @@ export default class GridItem extends React.PureComponent {
         return icon;
     }
 
-    getInlineStyle = () => {
+    getThumbnail = () => {
         const { lead } = this.props;
 
-        const leadStyle = {};
+        let thumbnail = `url(${leadThumbnail})`;
 
         if (lead.thumbnail) {
-            leadStyle.backgroundImage = `url(${lead.thumbnail})`;
+            thumbnail = `url(${lead.thumbnail})`;
         } else if (lead.attachment &&
             leadPaneTypeMap[lead.attachment.mimeType] === LEAD_PANE_TYPE.image) {
-            leadStyle.backgroundImage = `url(${lead.attachment.file})`;
+            thumbnail = `url(${lead.attachment.file})`;
         }
 
-        const height = GridItem.getHeightFromProps({}, this.props);
-        leadStyle.height = height;
-        return leadStyle;
+        return thumbnail;
     }
 
     renderMarkAction = () => {
@@ -135,7 +136,7 @@ export default class GridItem extends React.PureComponent {
 
                 <Button
                     tabIndex="-1"
-                    title={_ts('leads', 'searchSimilarLeadButtonTitle')}
+                    title={_ts('leads', 'markAsProcessedTitle')}
                     className={classNames(styles.markProcessed, styles.mark)}
                     onClick={() => onMarkProcessed(lead)}
                     transparent
@@ -146,7 +147,7 @@ export default class GridItem extends React.PureComponent {
             return (
                 <Button
                     tabIndex="-1"
-                    title={_ts('leads', 'searchSimilarLeadButtonTitle')}
+                    title={_ts('leads', 'markAsPendingTitle')}
                     className={classNames(styles.markPending, styles.mark)}
                     onClick={() => onMarkPending(lead)}
                     transparent
@@ -166,8 +167,7 @@ export default class GridItem extends React.PureComponent {
             <React.Fragment>
                 <div className={styles.mainActions}>
                     <Cloak
-                        // TODO: fix after testing
-                        hide={({ hasAnalysisFramework }) => hasAnalysisFramework}
+                        hide={({ hasAnalysisFramework }) => !hasAnalysisFramework}
                         render={({ disabled }) => (
                             <Link
                                 className={classNames(styles.add, { [styles.disabled]: disabled })}
@@ -206,14 +206,6 @@ export default class GridItem extends React.PureComponent {
                         iconName={iconNames.trash}
                         confirmationMessage={_ts('leads', 'leadDeleteConfirmText')}
                     />
-                    <Button
-                        tabIndex="-1"
-                        title={_ts('leads', 'searchSimilarLeadButtonTitle')} // TODO
-                        onClick={() => this.setState({ showPreview: true })}
-                        transparent
-                        iconName={iconNames.openLink}
-                    />
-
                 </div>
             </React.Fragment>
         );
@@ -221,16 +213,28 @@ export default class GridItem extends React.PureComponent {
 
 
     render() {
-        const { lead, className, onSearchSimilarLead, onRemoveLead, style } = this.props;
+        const { lead, className, style } = this.props;
         const Actions = this.renderActions;
 
         const isProcessed = lead.status === 'processed';
 
+        const height = GridItem.getHeightFromProps({}, this.props);
+        const thumbnail = this.getThumbnail();
         return (
             <div
                 className={classNames(className, styles.lead)}
-                style={{ ...style, ...this.getInlineStyle() }}
+                style={{ ...style, height }}
             >
+                <div
+                    className={styles.thumbnailWrapper}
+                    style={{
+                        backgroundImage: thumbnail,
+                    }}
+                    role="button"
+                    tabIndex="-1"
+                    onKeyDown={() => {}}
+                    onClick={() => this.setState({ showPreview: true })}
+                />
                 <div className={classNames({
                     [styles.documentTypePending]: !isProcessed,
                     [styles.documentTypeProcessed]: isProcessed,

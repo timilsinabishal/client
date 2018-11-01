@@ -27,11 +27,11 @@ export default class Masonry extends React.PureComponent {
         hasMore: PropTypes.bool.isRequired,
         isLoading: PropTypes.bool.isRequired,
         items: PropTypes.array.isRequired,
+        compareItems: PropTypes.func,
         itemComponent: PropTypes.oneOfType([
             PropTypes.instanceOf(React.Component),
             PropTypes.func,
         ]).isRequired,
-        itemProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
         loadingElement: PropTypes.node,
         onInfiniteLoad: PropTypes.func.isRequired,
         threshold: PropTypes.number.isRequired,
@@ -43,7 +43,7 @@ export default class Masonry extends React.PureComponent {
     static defaultProps = {
         alignCenter: true,
         containerClassName: 'masonry collection-group',
-        itemProps: {},
+        compareItems: (a, b) => a.length === b.length,
         layoutClassName: 'masonry-view',
         pageClassName: 'masonry-page',
         loadingElement: (
@@ -91,7 +91,7 @@ export default class Masonry extends React.PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.items.length !== this.props.items.length ||
+        if (!nextProps.compareItems(nextProps.items, this.props.items) ||
             nextProps.viewMode !== this.props.viewMode
         ) {
             this.layout(nextProps);
@@ -537,7 +537,6 @@ export default class Masonry extends React.PureComponent {
             hasMore,
             loadingElement,
             isLoading,
-            itemProps,
             itemComponent: Item,
             items,
         } = this.props;
@@ -595,3 +594,4 @@ export default class Masonry extends React.PureComponent {
         );
     }
 }
+

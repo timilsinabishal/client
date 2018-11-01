@@ -174,6 +174,7 @@ $width-assignee-column: 96px;
 
     .fixed-tabs {
         margin-right: $spacing-extra-large;
+        background-color: transparent;
 
         :global {
             .fixed-tab {
@@ -231,6 +232,15 @@ $width-assignee-column: 96px;
                         direction: rtl;
                     }
                 }
+            }
+        }
+
+        .sorting-container {
+            display: flex;
+            align-items: center;
+
+            > p {
+                margin: 0 $spacing-medium-alt 0 0;
             }
         }
     }

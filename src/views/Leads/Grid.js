@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Masonry from '#components/Masonry';
+import LoadingAnimation from '#rscv/LoadingAnimation';
+import { isArrayEqual } from '#rsu/common';
 import LeadItem from './GridItem';
 import styles from './styles.scss';
 
@@ -39,6 +41,13 @@ export default class LeadGrid extends React.Component {
             }
         ));
 
+        const compareItems = (a, b) => {
+            const aKeys = a.map(r => r.lead.id);
+            const bKeys = b.map(r => r.lead.id);
+
+            return isArrayEqual(aKeys, bKeys);
+        };
+
         return (
             <Masonry
                 ref={(_ref) => {
@@ -49,11 +58,12 @@ export default class LeadGrid extends React.Component {
                 containerClassName={styles.leadGrids}
                 alignCenter
                 loadingElement={
-                    <span style={styles.gridLoading}>Loading...</span>
+                    <LoadingAnimation large />
                 }
                 scrollAnchor={this.ref.node}
                 columnWidth={columnWidth}
                 columnGutter={columnGutter}
+                compareItems={compareItems}
                 hasMore
                 getState={{}}
                 isLoading={loading}
