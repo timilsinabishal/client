@@ -52,6 +52,7 @@ export default class Workshop extends React.PureComponent {
 
     static schema = {
         fields: {
+            search: [],
             username: [
                 requiredCondition,
             ],
@@ -97,6 +98,7 @@ export default class Workshop extends React.PureComponent {
         this.state = {
             faramErrors: {},
             faramValues: {
+                search: 'Looking',
                 username: 'thenav56',
                 password: 'noobnoob',
                 rainbowAffinity: false,
@@ -160,7 +162,6 @@ export default class Workshop extends React.PureComponent {
             // readOnly,
             pending,
         } = this.state;
-
 
         const disabled = faramState === 'disabled';
         const readOnly = faramState === 'readOnly';
@@ -369,7 +370,6 @@ export default class Workshop extends React.PureComponent {
                                 comparator: (a, b) => compareNumber(a.position, b.position),
                             },
                         ]}
-                        hideRemoveFromListButton
                     />
 
                     <PrimaryButton
