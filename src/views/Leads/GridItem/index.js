@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import Cloak from '#components/Cloak';
-import DetectOutsideClick from '#components/DetectOutsideClick';
 import Button from '#rsca/Button';
 import Modal from '#rscv/Modal';
 import LeadPreview from '#components/LeadPreview';
@@ -26,7 +25,7 @@ import styles from './styles.scss';
 
 const propTypes = {
     className: PropTypes.string,
-    lead: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    item: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     activeProject: PropTypes.number.isRequired,
     onSearchSimilarLead: PropTypes.func.isRequired,
@@ -42,6 +41,8 @@ const defaultProps = {
     minHeight: 295,
 };
 
+const noop = () => {};
+
 export default class GridItem extends React.PureComponent {
     static propTypes = propTypes;
     static defaultProps = defaultProps;
@@ -49,23 +50,35 @@ export default class GridItem extends React.PureComponent {
     // for masonry
     static getColumnSpanFromProps = () => 1
 
-    static getHeightFromProps = (getState, props) => {
+    static getHeightFromProps = (state, props) => {
+        const { width, minHeight } = state;
         const {
-            lead: {
-                thumbnailHeight = 400, thumbnailWidth = 250,
-            }, width = 250, minHeight = 295,
+            thumbnailHeight = 400, thumbnailWidth = 250,
         } = props;
         // item is wrapped by masonry
         const imgHeight = Math.max((width * thumbnailHeight) / thumbnailWidth, minHeight);
         return imgHeight;
     }
 
+    static shouldHideEntryAdd = ({ hasAnalysisFramework, entryPermissions }) => (
+        !hasAnalysisFramework || !(entryPermissions.create || entryPermissions.modify)
+    )
+
     state = {
         showPreview: false,
     }
 
+    onLeadClick = () => {
+        this.setState({ showPreview: true });
+    }
+
+    onOutsideClick = () => {
+        this.setState({ showPreview: false });
+    }
+
+
     get links() {
-        const { activeProject, lead } = this.props;
+        const { activeProject, item: lead } = this.props;
         return {
             editLead: {
                 pathname: reverseRoute(
@@ -76,20 +89,7 @@ export default class GridItem extends React.PureComponent {
                 ),
                 state: {
                     serverId: lead.id,
-                    faramValues: {
-                        title: lead.title,
-                        sourceType: lead.sourceType,
-                        project: lead.project,
-                        source: lead.source,
-                        confidentiality: lead.confidentiality,
-                        assignee: lead.assignee,
-                        publishedOn: lead.publishedOn,
-                        attachment: lead.attachment,
-                        website: lead.website,
-                        leadGroup: lead.leadGroup,
-                        url: lead.url,
-                        text: lead.text,
-                    },
+                    faramValues: lead,
                 },
             },
             editEntries: reverseRoute(
@@ -103,7 +103,7 @@ export default class GridItem extends React.PureComponent {
     }
 
     get mimeIcon() {
-        const { lead } = this.props;
+        const { item: lead } = this.props;
         let icon = iconNames.documentText;
         if (lead.attachment) {
             icon = leadTypeIconMap[lead.attachment.mimeType];
@@ -114,7 +114,7 @@ export default class GridItem extends React.PureComponent {
     }
 
     getThumbnail = () => {
-        const { lead } = this.props;
+        const { item: lead } = this.props;
 
         let thumbnail = `url(${leadThumbnail})`;
 
@@ -128,17 +128,32 @@ export default class GridItem extends React.PureComponent {
         return thumbnail;
     }
 
+    handleMarkAsProcessedClick = () => {
+        this.props.onMarkProcessed(this.props.item);
+    }
+
+    handleMarkAsPendingClick = () => {
+        this.props.onMarkPending(this.props.item);
+    }
+
+    handleRemoveLeadClick = () => {
+        this.props.onRemoveLead(this.props.item);
+    }
+
+    handleSearchLeadClick = () => {
+        this.props.onSearchSimilarLead(this.props.item);
+    }
+
     renderMarkAction = () => {
-        const { lead, onMarkPending, onMarkProcessed } = this.props;
+        const { item: lead, onMarkPending, onMarkProcessed } = this.props;
 
         if (lead.status === 'pending') {
             return (
-
                 <Button
                     tabIndex="-1"
                     title={_ts('leads', 'markAsProcessedTitle')}
                     className={classNames(styles.markProcessed, styles.mark)}
-                    onClick={() => onMarkProcessed(lead)}
+                    onClick={this.handleMarkAsProcessedClick}
                     transparent
                     iconName={iconNames.check}
                 />
@@ -149,7 +164,7 @@ export default class GridItem extends React.PureComponent {
                     tabIndex="-1"
                     title={_ts('leads', 'markAsPendingTitle')}
                     className={classNames(styles.markPending, styles.mark)}
-                    onClick={() => onMarkPending(lead)}
+                    onClick={this.handleMarkAsPendingClick}
                     transparent
                     iconName={iconNames.close}
                 />
@@ -160,34 +175,31 @@ export default class GridItem extends React.PureComponent {
     }
 
     renderActions = () => {
-        const { lead, onSearchSimilarLead, onRemoveLead } = this.props;
         const MarkAction = this.renderMarkAction;
 
         return (
             <React.Fragment>
                 <div className={styles.mainActions}>
                     <Cloak
-                        hide={({ hasAnalysisFramework }) => !hasAnalysisFramework}
-                        render={({ disabled }) => (
+                        hide={GridItem.shouldHideEntryAdd}
+                        render={
                             <Link
-                                className={classNames(styles.add, { [styles.disabled]: disabled })}
+                                className={styles.add}
                                 tabIndex="-1"
                                 title={_ts('leads', 'addEntryFromLeadButtonTitle')}
                                 to={this.links.editEntries}
-                                disabled={disabled}
                             >
                                 <i className={iconNames.add} />
                             </Link>
-                        )}
+                        }
                     />
                     <MarkAction />
                 </div>
                 <div className={styles.actions}>
-
                     <Button
                         tabIndex="-1"
                         title={_ts('leads', 'searchSimilarLeadButtonTitle')}
-                        onClick={() => onSearchSimilarLead(lead)}
+                        onClick={this.handleSearchLeadClick}
                         transparent
                         iconName={iconNames.search}
                     />
@@ -201,7 +213,7 @@ export default class GridItem extends React.PureComponent {
                     <DangerConfirmButton
                         tabIndex="-1"
                         title={_ts('leads', 'removeLeadLeadButtonTitle')}
-                        onClick={() => onRemoveLead(lead)}
+                        onClick={this.handleRemoveLeadClick}
                         transparent
                         iconName={iconNames.trash}
                         confirmationMessage={_ts('leads', 'leadDeleteConfirmText')}
@@ -211,19 +223,16 @@ export default class GridItem extends React.PureComponent {
         );
     }
 
-
     render() {
-        const { lead, className, style } = this.props;
+        const { item: lead, className, style } = this.props;
         const Actions = this.renderActions;
-
         const isProcessed = lead.status === 'processed';
-
-        const height = GridItem.getHeightFromProps({}, this.props);
         const thumbnail = this.getThumbnail();
+
         return (
             <div
                 className={classNames(className, styles.lead)}
-                style={{ ...style, height }}
+                style={{ ...style }}
             >
                 <div
                     className={styles.thumbnailWrapper}
@@ -232,8 +241,8 @@ export default class GridItem extends React.PureComponent {
                     }}
                     role="button"
                     tabIndex="-1"
-                    onKeyDown={() => {}}
-                    onClick={() => this.setState({ showPreview: true })}
+                    onKeyDown={noop}
+                    onClick={this.onLeadClick}
                 />
                 <div className={classNames({
                     [styles.documentTypePending]: !isProcessed,
@@ -246,49 +255,58 @@ export default class GridItem extends React.PureComponent {
                 <Actions />
 
                 <div className={styles.leadInfo}>
-                    <span className={styles.timeFrom}>{timeFrom(lead.createdAt)}</span>
-                    <p className={styles.title}>{lead.title}</p>
+                    <span className={styles.timeFrom}>
+                        {timeFrom(lead.createdAt)}
+                    </span>
+                    <p className={styles.title}>
+                        {lead.title}
+                    </p>
                     <div className={styles.leadInfoExtra}>
-
                         <Link
                             className={styles.user}
                             to={reverseRoute(pathNames.userProfile,
                                 { userId: lead.assigneeDetails.id })}
                         >
-                            Assignee: {lead.assigneeDetails.displayName}
+                            {_ts('leads', 'assignee')}: {lead.assigneeDetails.displayName}
                         </Link>
                         <Link
                             className={styles.user}
                             to={reverseRoute(pathNames.userProfile, { userId: lead.createdBy })}
                         >
-                            Publisher: {lead.createdByName}
+                            {_ts('leadsGrid', 'publisherLabel')}: {lead.createdByName}
                         </Link>
-                        <div className={styles.leadInfoExtraRow}>
+                        <div className={styles.leadInfoCounts}>
                             {
-                                lead.pageCount > 1 ?
-                                    <span>{lead.pageCount || 0} pages</span> :
-                                    <span>{lead.wordCount || 0} words</span>
+                                lead.pageCount > 1 ? (
+                                    <span>
+                                        {lead.pageCount || 0} {_ts('leadsGrid', 'pagesLabel')}
+                                    </span>) :
+                                    (
+                                        <span>
+                                            {lead.wordCount || 0} {_ts('leadsGrid', 'wordsLabel')}
+                                        </span>
+                                    )
                             }
-                            <span className={styles.entries}>{lead.noOfEntries} entries</span>
+                            <span className={styles.entries}>
+                                {lead.noOfEntries || 0} {_ts('leadsGrid', 'entriesLabel')}
+                            </span>
                             <span className={styles.timeFromBottom}>
                                 {timeFrom(lead.createdAt)}
                             </span>
                         </div>
                     </div>
                 </div>
-
                 {
                     this.state.showPreview &&
-                        <Modal className={styles.modal}>
-                            <DetectOutsideClick
-                                onOutsideClicked={() => this.setState({ showPreview: false })}
-                                detectESC
-                            >
-                                <LeadPreview
-                                    lead={lead}
-                                    showScreenshot={false}
-                                />
-                            </DetectOutsideClick>
+                        <Modal
+                            className={styles.modal}
+                            onOutsideClick={this.onOutsideClick}
+                            detectESC
+                        >
+                            <LeadPreview
+                                lead={lead}
+                                showScreenshot={false}
+                            />
                         </Modal>
 
                 }

@@ -65,7 +65,7 @@ $radius-lead: 4px;
         height: 100%;
     }
 
-    .timeFrom {
+    .time-from {
         @include transition-slow;
         float: right;
     }
@@ -78,7 +78,7 @@ $radius-lead: 4px;
         @include documentType($unprocessed-color);
     }
 
-    .leadInfo {
+    .lead-info {
         @include transition-slow;
         z-index: 1;
         margin-top: auto;
@@ -113,8 +113,9 @@ $radius-lead: 4px;
         overflow: hidden;
     }
 
-    .lead-info-extra-row {
+    .lead-info-counts {
         display: flex;
+        text-transform: lowercase;
 
         .entries {
             margin-left: $spacing-large-alt;
@@ -199,7 +200,7 @@ $radius-lead: 4px;
 
     &:hover {
 
-        .timeFrom {
+        .time-from {
             display: none;
             opacity: 0;
         }

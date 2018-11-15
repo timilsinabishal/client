@@ -27,6 +27,7 @@ export default class Masonry extends React.PureComponent {
         hasMore: PropTypes.bool.isRequired,
         isLoading: PropTypes.bool.isRequired,
         items: PropTypes.array.isRequired,
+        otherItemProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
         compareItems: PropTypes.func,
         itemComponent: PropTypes.oneOfType([
             PropTypes.instanceOf(React.Component),
@@ -38,6 +39,7 @@ export default class Masonry extends React.PureComponent {
         scrollAnchor: PropTypes.object, // eslint-disable-line react/forbid-prop-types
         scrollOffset: PropTypes.number,
         viewMode: PropTypes.string,
+        state: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     }
 
     static defaultProps = {
@@ -55,22 +57,20 @@ export default class Masonry extends React.PureComponent {
         threshold: window.innerHeight * 1.3,
         scrollOffset: 0,
         viewMode: 'default',
+        state: {},
+        otherItemProps: {},
     }
 
     static isPageVisible({ page, top, viewableHeight }) {
         const { start, stop } = page;
         const extraThreshold = viewableHeight;
         // trigger area = viewable area with buffer areas
-        if (
+        return (
             (start >= top - extraThreshold && stop <= top + viewableHeight + extraThreshold) ||
             (start <= top + extraThreshold && stop >= top - extraThreshold) ||
             (start >= top - extraThreshold && start <= top + viewableHeight + extraThreshold) ||
             (stop > top - extraThreshold && stop <= top + viewableHeight + extraThreshold)
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     static findItemsInSameColumn(itemList, item) {
@@ -84,7 +84,7 @@ export default class Masonry extends React.PureComponent {
     state = { averageHeight: 300, pages: [] }
 
     componentDidMount() {
-        this.layout(this.props);
+        this.computeLayout(this.props);
         this.checkVisibility();
         this.node.addEventListener('scroll', this.onScroll);
         window.addEventListener('resize', this.onResize);
@@ -94,7 +94,7 @@ export default class Masonry extends React.PureComponent {
         if (!nextProps.compareItems(nextProps.items, this.props.items) ||
             nextProps.viewMode !== this.props.viewMode
         ) {
-            this.layout(nextProps);
+            this.computeLayout(nextProps);
         }
     }
 
@@ -104,7 +104,7 @@ export default class Masonry extends React.PureComponent {
     }
 
     onResize = throttle(() => {
-        this.layout(this.props, true);
+        this.computeLayout(this.props, true);
     }, 150, { trailing: true })
 
     onScroll = throttle(() => {
@@ -161,8 +161,7 @@ export default class Masonry extends React.PureComponent {
         }
     }
 
-
-    layout(props, rearrange = false) {
+    computeLayout(props, rearrange = false) {
         if (!this.node) {
             return;
         }
@@ -231,7 +230,7 @@ export default class Masonry extends React.PureComponent {
 
 
             // Ok now we have an item, let's decide how many columns it spans
-            const columnSpan = Math.min(maxColumns, columnSpanSelector(props.getState, itemProps));
+            const columnSpan = Math.min(maxColumns, columnSpanSelector(props.state, itemProps));
 
             // Check if the column will exceed maxColumns
             if (column + columnSpan > maxColumns) {
@@ -239,7 +238,7 @@ export default class Masonry extends React.PureComponent {
             }
 
             // Determine the height of this item to stage
-            const height = heightSelector(props.getState, itemProps, columnSpan, columnGutter);
+            const height = heightSelector(props.state, itemProps, columnSpan, columnGutter);
 
             if (Number.isNaN(height)) {
                 console.warn(`Skipping feed item ${componentName} with props ${JSON.stringify(itemProps)} because "${height}" is not a number.`);
@@ -539,6 +538,7 @@ export default class Masonry extends React.PureComponent {
             isLoading,
             itemComponent: Item,
             items,
+            otherItemProps,
         } = this.props;
 
         const {
@@ -566,9 +566,10 @@ export default class Masonry extends React.PureComponent {
                                         left,
                                         top,
                                         width,
+                                        height,
                                         columnSpan }, itemIndex) => {
-                                        const props = items[(itemsPerPage * index) + itemIndex] ||
-                                            _props;
+                                        const itemProps = items[(itemsPerPage * index)
+                                                + itemIndex] || _props;
                                         return (
                                             <Item
                                             // eslint-disable-next-line react/no-array-index-key
@@ -579,8 +580,10 @@ export default class Masonry extends React.PureComponent {
                                                     left: `${left}px`,
                                                     top: `${top}px`,
                                                     width: `${width}px`,
+                                                    height: `${height}px`,
                                                 }}
-                                                {...props}
+                                                {...otherItemProps}
+                                                item={itemProps}
                                             />
                                         );
                                     },

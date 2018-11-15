@@ -731,6 +731,9 @@
         "15008": "Reset sort",
         "15009": "Skip this sheet",
         "15010": "Header row",
+        "13000": "Sorted By",
+        "13001": "Words",
+        "13002": "Pages",
         "-12279953": "Entry Cleared",
         "-94068330": "All local entries were cleared because associated analysis framework was removed.",
         "-4983139": "Remove lead group",
@@ -1418,6 +1421,13 @@
             "leadsPatchSuccess": 8051,
             "leadsPendingSuccess": -74575009,
             "leadsProcessedSuccess": -35157722
+        },
+        "leadsGrid": {
+            "publisherLabel": 5,
+            "sortedByLabel": 13000,
+            "wordsLabel": 13001,
+            "pagesLabel": 13002,
+            "entriesLabel": 15
         },
         "leadsViz": {
             "chordDiagram": 4007,

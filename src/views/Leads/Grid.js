@@ -21,53 +21,57 @@ export default class LeadGrid extends React.Component {
     static propTypes = propTypes;
     static defaultProps = defaultProps;
 
+    // simple comparision using id and their position to
+    // check if we should recompute the layout
+    // we can add thumbnail url check too if the leads data
+    // is updated in realtime using websockets
+    static compareLeads = (a, b) => {
+        const aKeys = a.map(r => r.id);
+        const bKeys = b.map(r => r.id);
+
+        return isArrayEqual(aKeys, bKeys);
+    };
+
     constructor(props) {
         super(props);
-        this.ref = React.createRef();
+
+        this.columnWidth = 300;
+        this.columnGutter = 40;
+
+        this.itemState = {
+            width: this.columnWidth,
+            minHeight: 295,
+        };
+
+        this.masonryRef = {};
+    }
+
+    onReference = (ref) => {
+        this.masonryRef = ref;
     }
 
     render() {
         const { loading, onEndReached, leads, ...otherProps } = this.props;
 
-        const columnWidth = 280;
-        const columnGutter = 40;
-
-        const items = leads.map(lead => (
-            {
-                lead,
-                minHeight: 295,
-                width: columnWidth,
-                ...otherProps,
-            }
-        ));
-
-        const compareItems = (a, b) => {
-            const aKeys = a.map(r => r.lead.id);
-            const bKeys = b.map(r => r.lead.id);
-
-            return isArrayEqual(aKeys, bKeys);
-        };
-
         return (
             <Masonry
-                ref={(_ref) => {
-                    this.ref = _ref;
-                }}
-                items={items}
+                ref={this.onReference}
+                items={leads}
                 itemComponent={LeadItem}
                 containerClassName={styles.leadGrids}
                 alignCenter
                 loadingElement={
                     <LoadingAnimation large />
                 }
-                scrollAnchor={this.ref.node}
-                columnWidth={columnWidth}
-                columnGutter={columnGutter}
-                compareItems={compareItems}
+                scrollAnchor={this.masonryRef.node}
+                columnWidth={this.columnWidth}
+                columnGutter={this.columnGutter}
+                compareItems={LeadGrid.compareLeads}
                 hasMore
-                getState={{}}
                 isLoading={loading}
                 onInfiniteLoad={onEndReached}
+                state={this.itemState}
+                otherItemProps={otherProps}
             />
         );
     }

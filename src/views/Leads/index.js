@@ -83,8 +83,10 @@ const propTypes = {
     view: PropTypes.string.isRequired,
 };
 
-const defaultProps = { leads: [],
-    totalLeadsCount: 0 };
+const defaultProps = {
+    leads: [],
+    totalLeadsCount: 0,
+};
 
 const mapStateToProps = state => ({
     activeProject: activeProjectIdFromStateSelector(state),
@@ -121,6 +123,8 @@ export default class Leads extends React.PureComponent {
     static defaultProps = defaultProps;
 
     static leadKeyExtractor = lead => String(lead.id)
+    static sortKeySelector = s => s.key
+    static sortLabelSelector = s => s.label
 
     constructor(props) {
         super(props);
@@ -253,6 +257,8 @@ export default class Leads extends React.PureComponent {
             },
         ];
 
+        this.sortableHeaders = this.headers.filter(h => h.sortable);
+
         this.state = {
             loadingLeads: false,
             redirectTo: undefined,
@@ -277,10 +283,12 @@ export default class Leads extends React.PureComponent {
             [GRID_VIEW]: GRID_VIEW,
         };
 
-        this.tabsIcons = {
+        const tabsIcons = {
             [TABLE_VIEW]: iconNames.list,
             [GRID_VIEW]: iconNames.grid,
         };
+
+        this.tabsModifier = key => <i className={tabsIcons[key]} />;
     }
 
     componentWillMount() {
@@ -373,21 +381,27 @@ export default class Leads extends React.PureComponent {
 
     onGridEndReached = () => {
         const { activePage, leadsPerPage, totalLeadsCount } = this.props;
-        if (activePage === Math.ceil(totalLeadsCount / leadsPerPage)) {
-            return;
+        if (activePage !== Math.ceil(totalLeadsCount / leadsPerPage)) {
+            this.props.setLeadPageActivePage({ activePage: activePage + 1 });
         }
-        this.props.setLeadPageActivePage({ activePage: activePage + 1 });
     }
 
     getSortDetails = () => {
         const { activeSort } = this.props;
+        let sortDirIcon = iconNames.chevronUp;
+        let sortKey = activeSort;
 
         if (!activeSort) {
-            return [iconNames.chevronDown, ''];
-        } else if (activeSort.slice(0, 1) === '-') {
-            return [iconNames.chevronDown, activeSort.slice(1)];
+            sortDirIcon = iconNames.chevronUp;
+            sortKey = '';
+        } else if (activeSort[0] === '-') {
+            sortDirIcon = iconNames.chevronDown;
+            sortKey = activeSort.slice(1);
         }
-        return [iconNames.chevronUp, activeSort];
+        return {
+            sortDirIcon,
+            sortKey,
+        };
     }
 
     handleSearchSimilarLead = (row) => {
@@ -491,12 +505,20 @@ export default class Leads extends React.PureComponent {
         let { activeSort } = this.props;
         if (!activeSort) {
             return;
-        } else if (activeSort.slice(0, 1) === '-') {
+        } else if (activeSort[0] === '-') {
             activeSort = activeSort.slice(1);
         } else {
             activeSort = `-${activeSort}`;
         }
         this.props.setLeadPageActiveSort({ activeSort });
+    }
+
+    handleSortItemClick = (key) => {
+        this.props.setLeadPageActiveSort({ activeSort: key });
+    }
+
+    handleTabClick = (view) => {
+        this.props.setLeadPageView({ view });
     }
 
     renderMimeType = ({ row }) => {
@@ -539,8 +561,8 @@ export default class Leads extends React.PureComponent {
                     useHash
                     replaceHistory
                     className={styles.fixedTabs}
-                    modifier={key => <i className={this.tabsIcons[key]} />}
-                    onClick={view => this.props.setLeadPageView({ view })}
+                    modifier={this.tabsModifier}
+                    onClick={this.handleTabClick}
                     defaultHash={this.props.view}
                 />
                 <Cloak
@@ -580,7 +602,7 @@ export default class Leads extends React.PureComponent {
             { projectId: activeProject },
         );
 
-        const [sortDirIcon, sortKey] = this.getSortDetails();
+        const { sortDirIcon, sortKey } = this.getSortDetails();
 
         return (
             <footer className={styles.footer}>
@@ -632,16 +654,14 @@ export default class Leads extends React.PureComponent {
                     :
                     (
                         <div className={styles.sortingContainer}>
-                            <p>Sorted by:</p>
+                            <p>{_ts('leadsGrid', 'sortedByLabel')}:</p>
                             <SelectInput
                                 faramElementName="assignee"
-                                keySelector={k => k.key}
-                                labelSelector={r => r.label}
+                                keySelector={this.sortKeySelector}
+                                labelSelector={this.sortLabelSelector}
                                 value={sortKey}
-                                options={this.headers.filter(h => h.sortable)}
-                                onChange={
-                                    key => this.props.setLeadPageActiveSort({ activeSort: key })
-                                }
+                                options={this.sortableHeaders}
+                                onChange={this.handleSortItemClick}
                                 placeholder={_ts('leads', 'placeholderAnybody')}
                                 showHintAndError={false}
                             />
@@ -659,7 +679,6 @@ export default class Leads extends React.PureComponent {
     }
 
     renderTableView = () => (
-
         <div className={styles.tableContainer}>
             <div className={styles.scrollWrapper}>
                 <RawTable
