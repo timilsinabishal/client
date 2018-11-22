@@ -27,19 +27,14 @@ export default class Masonry extends React.PureComponent {
         hasMore: PropTypes.bool.isRequired,
         isLoading: PropTypes.bool.isRequired,
         items: PropTypes.array.isRequired,
-        otherItemProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+        renderItem: PropTypes.func.isRequired,
         compareItems: PropTypes.func,
-        itemComponent: PropTypes.oneOfType([
-            PropTypes.instanceOf(React.Component),
-            PropTypes.func,
-        ]).isRequired,
         loadingElement: PropTypes.node,
         onInfiniteLoad: PropTypes.func.isRequired,
         threshold: PropTypes.number.isRequired,
         scrollAnchor: PropTypes.object, // eslint-disable-line react/forbid-prop-types
         scrollOffset: PropTypes.number,
         viewMode: PropTypes.string,
-        state: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     }
 
     static defaultProps = {
@@ -58,7 +53,6 @@ export default class Masonry extends React.PureComponent {
         scrollOffset: 0,
         viewMode: 'default',
         state: {},
-        otherItemProps: {},
     }
 
     static isPageVisible({ page, top, viewableHeight }) {
@@ -169,18 +163,10 @@ export default class Masonry extends React.PureComponent {
             columnWidth,
             columnGutter,
             items,
-            itemComponent,
+            getItemHeight,
         } = props;
 
-        const componentName = itemComponent.displayName || itemComponent.name;
-        if (!('getHeightFromProps' in itemComponent)) {
-            throw new Error(`Component type ${componentName} does not respond to 'getHeightFromProps'`);
-        }
-
-        const heightSelector = itemComponent.getHeightFromProps;
-        const columnSpanSelector = itemComponent.getColumnSpanFromProps ||
-            defaultColumnSpanSelector;
-
+        const columnSpanSelector = defaultColumnSpanSelector;
 
         // Decide a starter position for centering
         const viewableWidth = this.node.offsetWidth;
@@ -238,10 +224,10 @@ export default class Masonry extends React.PureComponent {
             }
 
             // Determine the height of this item to stage
-            const height = heightSelector(props.state, itemProps, columnSpan, columnGutter);
+            const height = getItemHeight(props.state, itemProps, columnSpan, columnGutter);
 
             if (Number.isNaN(height)) {
-                console.warn(`Skipping feed item ${componentName} with props ${JSON.stringify(itemProps)} because "${height}" is not a number.`);
+                console.warn(`Skipping feed of getItemHeight with arguments ${JSON.stringify(itemProps)} because "${height}" is not a number.`);
                 return workingPages;
             }
 
@@ -536,9 +522,8 @@ export default class Masonry extends React.PureComponent {
             hasMore,
             loadingElement,
             isLoading,
-            itemComponent: Item,
             items,
-            otherItemProps,
+            renderItem,
         } = this.props;
 
         const {
@@ -568,24 +553,21 @@ export default class Masonry extends React.PureComponent {
                                         width,
                                         height,
                                         columnSpan }, itemIndex) => {
-                                        const itemProps = items[(itemsPerPage * index)
-                                                + itemIndex] || _props;
-                                        return (
-                                            <Item
-                                            // eslint-disable-next-line react/no-array-index-key
-                                                key={itemIndex}
-                                                columnSpan={columnSpan}
-                                                style={{
-                                                    position: 'absolute',
-                                                    left: `${left}px`,
-                                                    top: `${top}px`,
-                                                    width: `${width}px`,
-                                                    height: `${height}px`,
-                                                }}
-                                                {...otherItemProps}
-                                                item={itemProps}
-                                            />
-                                        );
+                                        const absIndex = (itemsPerPage * index) + itemIndex;
+                                        const itemProps = items[absIndex] || _props;
+                                        const style = {
+                                            position: 'absolute',
+                                            left: `${left}px`,
+                                            top: `${top}px`,
+                                            width: `${width}px`,
+                                            height: `${height}px`,
+                                        };
+                                        return renderItem({
+                                            key: itemIndex,
+                                            style,
+                                            itemIndex: absIndex,
+                                            item: itemProps,
+                                        });
                                     },
                                 )}
                             </div>
