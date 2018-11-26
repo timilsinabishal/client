@@ -8,11 +8,8 @@ import {
 
 import Button from '#rsca/Button';
 import FormattedDate from '#rscv/FormattedDate';
-import LoadingAnimation from '#rscv/LoadingAnimation';
 import SelectInput from '#rsci/SelectInput';
 import Pager from '#rscv/Pager';
-import RawTable from '#rscv/RawTable';
-import TableHeader from '#rscv/TableHeader';
 import { reverseRoute } from '#rsu/common';
 
 import MultiViewContainer from '#rscv/MultiViewContainer';
@@ -25,7 +22,6 @@ import {
 import { leadTypeIconMap } from '#entities/lead';
 import {
     activeProjectIdFromStateSelector,
-    leadsForProjectSelector,
     totalLeadsCountForProjectSelector,
 
     setLeadsAction,
@@ -51,6 +47,7 @@ import {
 } from '#redux';
 import _ts from '#ts';
 
+import Table from './Table';
 import ActionButtons from './ActionButtons';
 import FilterLeadsForm from './FilterLeadsForm';
 
@@ -64,13 +61,13 @@ import styles from './styles.scss';
 
 const propTypes = {
     filters: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    leads: PropTypes.array, // eslint-disable-line react/forbid-prop-types
 
     activePage: PropTypes.number.isRequired,
     activeSort: PropTypes.string.isRequired,
     activeProject: PropTypes.number.isRequired,
     leadsPerPage: PropTypes.number.isRequired,
     setLeads: PropTypes.func.isRequired,
+    appendLeads: PropTypes.func.isRequired,
     removeLead: PropTypes.func.isRequired,
     patchLead: PropTypes.func.isRequired,
 
@@ -84,14 +81,12 @@ const propTypes = {
 };
 
 const defaultProps = {
-    leads: [],
     totalLeadsCount: 0,
 };
 
 const mapStateToProps = state => ({
     activeProject: activeProjectIdFromStateSelector(state),
 
-    leads: leadsForProjectSelector(state),
     totalLeadsCount: totalLeadsCountForProjectSelector(state),
     activePage: leadPageActivePageSelector(state),
     activeSort: leadPageActiveSortSelector(state),
@@ -268,13 +263,15 @@ export default class Leads extends React.PureComponent {
             [TABLE_VIEW]: {
                 component: this.renderTableView,
                 wrapContainer: true,
-                mount: false,
+                mount: true,
+                lazyMount: true,
             },
 
             [GRID_VIEW]: {
                 component: this.renderGridView,
                 wrapContainer: true,
-                mount: false,
+                mount: true,
+                lazyMount: true,
             },
         };
 
@@ -288,6 +285,10 @@ export default class Leads extends React.PureComponent {
             [GRID_VIEW]: iconNames.grid,
         };
 
+        this.lastFilters = {};
+
+        this.lastProject = {};
+
         this.tabsModifier = key => <i className={tabsIcons[key]} />;
     }
 
@@ -298,13 +299,7 @@ export default class Leads extends React.PureComponent {
             filters,
             activePage,
             leadsPerPage,
-            view,
         } = this.props;
-
-        // in case of reload on grid reset activePage
-        if (view === GRID_VIEW && activePage !== 1) {
-            this.props.setLeadPageActivePage({ activePage: 1 });
-        }
 
         const request = new LeadsRequest({
             setState: params => this.setState(params),
@@ -332,23 +327,28 @@ export default class Leads extends React.PureComponent {
         } = nextProps;
 
         if (
-            this.props.activeProject !== activeProject ||
-            this.props.activeSort !== activeSort ||
-            this.props.filters !== filters ||
-            this.props.activePage !== activePage ||
-            this.props.leadsPerPage !== leadsPerPage ||
-            this.props.view !== view
+            this.lastProject[view] !== activeProject ||
+            this.lastFilters[view] !== filters ||
+            (
+                (
+                    this.props.activeSort !== activeSort ||
+                    this.props.activePage !== activePage ||
+                    this.props.leadsPerPage !== leadsPerPage
+                ) &&
+                this.props.view === view
+            )
         ) {
             this.leadRequest.stop();
 
-            // append in case of end reached in gridview
+            // append in case of next page reached in gridview
             const shouldAppend = this.props.view === GRID_VIEW &&
                 view === GRID_VIEW &&
+                this.props.activeProject === activeProject &&
                 this.props.activeSort === activeSort &&
                 this.props.filters === filters &&
                 this.props.activePage !== activePage &&
-                activePage !== 1 &&
-                this.props.leadsPerPage === leadsPerPage;
+                this.props.leadsPerPage === leadsPerPage &&
+                activePage !== 1;
 
             const setLeads = shouldAppend ?
                 this.props.appendLeads : this.props.setLeads;
@@ -366,6 +366,9 @@ export default class Leads extends React.PureComponent {
                 leadsPerPage,
             });
             this.leadRequest.start();
+
+            this.lastFilters[view] = filters;
+            this.lastProject[view] = activeProject;
         }
     }
 
@@ -381,7 +384,7 @@ export default class Leads extends React.PureComponent {
 
     onGridEndReached = () => {
         const { activePage, leadsPerPage, totalLeadsCount } = this.props;
-        if (activePage !== Math.ceil(totalLeadsCount / leadsPerPage)) {
+        if (activePage < Math.ceil(totalLeadsCount / leadsPerPage)) {
             this.props.setLeadPageActivePage({ activePage: activePage + 1 });
         }
     }
@@ -455,50 +458,6 @@ export default class Leads extends React.PureComponent {
 
     handleLeadsPerPageChange = (pageCount) => {
         this.props.setLeadsPerPage({ leadsPerPage: pageCount });
-    }
-
-    // TABLE
-
-    leadModifier = (lead, columnKey) => {
-        const header = this.headers.find(d => d.key === columnKey);
-        if (header.modifier) {
-            return header.modifier(lead);
-        }
-        return lead[columnKey];
-    }
-
-    headerModifier = (headerData) => {
-        const { activeSort } = this.props;
-
-        let sortOrder = '';
-        if (activeSort === headerData.key) {
-            sortOrder = 'asc';
-        } else if (activeSort === `-${headerData.key}`) {
-            sortOrder = 'dsc';
-        }
-        return (
-            <TableHeader
-                label={headerData.label}
-                sortOrder={sortOrder}
-                sortable={headerData.sortable}
-            />
-        );
-    }
-
-    handleTableHeaderClick = (key) => {
-        const headerData = this.headers.find(h => h.key === key);
-        // prevent click on 'actions' column
-        if (!headerData.sortable) {
-            return;
-        }
-
-        let { activeSort } = this.props;
-        if (activeSort === key) {
-            activeSort = `-${key}`;
-        } else {
-            activeSort = key;
-        }
-        this.props.setLeadPageActiveSort({ activeSort });
     }
 
     handleSortOrderClick = () => {
@@ -586,6 +545,7 @@ export default class Leads extends React.PureComponent {
             activeProject,
             totalLeadsCount,
             activePage,
+            leadsPerPage,
         } = this.props;
 
         const showVisualizationLink = reverseRoute(
@@ -601,6 +561,8 @@ export default class Leads extends React.PureComponent {
             pathNames.leadGroups,
             { projectId: activeProject },
         );
+
+        const leadsCount = Math.min(activePage * leadsPerPage, totalLeadsCount);
 
         const { sortDirIcon, sortKey } = this.getSortDetails();
 
@@ -654,6 +616,7 @@ export default class Leads extends React.PureComponent {
                     :
                     (
                         <div className={styles.sortingContainer}>
+                            <p>{_ts('leadsGrid', 'leadsRange', { leadsCount, totalLeadsCount })}</p>
                             <p>{_ts('leadsGrid', 'sortedByLabel')}:</p>
                             <SelectInput
                                 faramElementName="assignee"
@@ -679,27 +642,21 @@ export default class Leads extends React.PureComponent {
     }
 
     renderTableView = () => (
-        <div className={styles.tableContainer}>
-            <div className={styles.scrollWrapper}>
-                <RawTable
-                    data={this.props.leads}
-                    dataModifier={this.leadModifier}
-                    headerModifier={this.headerModifier}
-                    headers={this.headers}
-                    onHeaderClick={this.handleTableHeaderClick}
-                    keySelector={Leads.leadKeyExtractor}
-                    className={styles.leadsTable}
-                />
-                { this.state.loadingLeads && <LoadingAnimation large /> }
-            </div>
-        </div>
+        <Table
+            headers={this.headers}
+            activeSort={this.props.activeSort}
+            onHeaderClick={this.handleTableHeaderClick}
+            loading={this.state.loadingLeads}
+            setLeadPageActiveSort={this.props.setLeadPageActiveSort}
+        />
     )
 
     renderGridView = () => (
         <Grid
+            view={this.props.view}
             loading={this.state.loadingLeads}
-            leads={this.props.leads}
             onEndReached={this.onGridEndReached}
+            setLeadPageActivePage={this.props.setLeadPageActivePage}
             onSearchSimilarLead={this.handleSearchSimilarLead}
             onRemoveLead={this.handleLeadDelete}
             onMarkProcessed={this.handleMarkAsProcessed}

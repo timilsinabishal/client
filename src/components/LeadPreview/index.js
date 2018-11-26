@@ -18,7 +18,6 @@ const propTypes = {
     showUrl: PropTypes.bool,
     showScreenshot: PropTypes.bool,
     handleScreenshot: PropTypes.func.isRequired,
-    showScreenshot: PropTypes.boolean,
 };
 
 const defaultProps = {

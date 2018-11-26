@@ -1,13 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import Masonry from '#components/Masonry';
+import { connect } from 'react-redux';
+import Masonry from '#rc/Masonry';
 import Button from '#rsca/Button';
 import LoadingAnimation from '#rscv/LoadingAnimation';
 import { isArrayEqual } from '#rsu/common';
 import Modal from '#rscv/Modal';
 import LeadPreview from '#components/LeadPreview';
 import { iconNames } from '#constants';
+import {
+    leadsForProjectGridViewSelector,
+} from '#redux';
 import LeadItem from './GridItem';
 import styles from './styles.scss';
 
@@ -15,6 +19,13 @@ const propTypes = {
     loading: PropTypes.bool,
     onEndReached: PropTypes.func.isRequired,
     leads: PropTypes.arrayOf(PropTypes.object),
+    view: PropTypes.string.isRequired,
+    activeProject: PropTypes.number.isRequired,
+    onSearchSimilarLead: PropTypes.func.isRequired,
+    onRemoveLead: PropTypes.func.isRequired,
+    onMarkProcessed: PropTypes.func.isRequired,
+    onMarkPending: PropTypes.func.isRequired,
+    setLeadPageActivePage: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -25,6 +36,11 @@ const defaultProps = {
 const LEFT_KEY = 37;
 const RIGHT_KEY = 39;
 
+const mapStateToProps = state => ({
+    leads: leadsForProjectGridViewSelector(state),
+});
+
+@connect(mapStateToProps)
 export default class LeadGrid extends React.Component {
     static propTypes = propTypes;
     static defaultProps = defaultProps;
@@ -33,11 +49,11 @@ export default class LeadGrid extends React.Component {
     // check if we should recompute the layout
     // we can add thumbnail url check too if the leads data
     // is updated in realtime using websockets
-    static compareLeads = (a, b) => {
+    static isItemsChanged = (a, b) => {
         const aKeys = a.map(r => r.id);
         const bKeys = b.map(r => r.id);
 
-        return isArrayEqual(aKeys, bKeys);
+        return !isArrayEqual(aKeys, bKeys);
     };
 
     constructor(props) {
@@ -60,7 +76,13 @@ export default class LeadGrid extends React.Component {
     }
 
     componentDidMount() {
+        // Rest grid when loading first time
+        this.props.setLeadPageActivePage({ activePage: 1 });
         document.addEventListener('keydown', this.handleKeyPressed);
+    }
+
+    shouldComponentUpdate() {
+        return this.props.view === 'grid';
     }
 
     componentWillUnmount() {
@@ -142,11 +164,12 @@ export default class LeadGrid extends React.Component {
                     scrollAnchor={this.masonryRef.node}
                     columnWidth={this.columnWidth}
                     columnGutter={this.columnGutter}
-                    compareItems={LeadGrid.compareLeads}
-                    hasMore
+                    isItemsChanged={this.isItemsChanged}
+                    checkActive={this.checkActive}
                     isLoading={loading}
                     onInfiniteLoad={onEndReached}
                     state={this.itemState}
+                    hasMore
                 />
                 {
                     this.state.showPreview &&

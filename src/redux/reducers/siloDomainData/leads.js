@@ -68,6 +68,16 @@ export const removeLeadAction = ({ lead }) => ({
     lead,
 });
 
+const getView = (state) => {
+    const { activeProject } = state;
+    if (activeProject && state.leadPage[activeProject]) {
+        const { view = 'table' } = state.leadPage[activeProject];
+        return view;
+    }
+
+    return 'table';
+};
+
 // REDUCER
 
 const leadViewSetFilter = (state, action) => {
@@ -76,8 +86,13 @@ const leadViewSetFilter = (state, action) => {
     const settings = {
         leadPage: {
             [activeProject]: { $auto: {
+                table: { $auto: {
+                    activePage: { $set: 1 },
+                } },
+                grid: { $auto: {
+                    activePage: { $set: 1 },
+                } },
                 filter: { $set: filters },
-                activePage: { $set: 1 },
             } },
         },
     };
@@ -90,7 +105,12 @@ const leadViewUnsetFilter = (state) => {
         leadPage: {
             [activeProject]: { $auto: {
                 filter: { $set: {} },
-                activePage: { $set: 1 },
+                table: { $auto: {
+                    activePage: { $set: 1 },
+                } },
+                grid: { $auto: {
+                    activePage: { $set: 1 },
+                } },
             } },
         },
     };
@@ -100,10 +120,13 @@ const leadViewUnsetFilter = (state) => {
 const leadViewSetActivePage = (state, action) => {
     const { activePage } = action;
     const { activeProject } = state;
+    const view = getView(state);
     const settings = {
         leadPage: {
             [activeProject]: { $auto: {
-                activePage: { $set: activePage },
+                [view]: { $auto: {
+                    activePage: { $set: activePage },
+                } },
             } },
         },
     };
@@ -113,11 +136,14 @@ const leadViewSetActivePage = (state, action) => {
 const leadViewSetActiveSort = (state, action) => {
     const { activeSort } = action;
     const { activeProject } = state;
+    const view = getView(state);
     const settings = {
         leadPage: {
             [activeProject]: { $auto: {
-                activeSort: { $set: activeSort },
-                activePage: { $set: 1 },
+                [view]: { $auto: {
+                    activeSort: { $set: activeSort },
+                    activePage: { $set: 1 },
+                } },
             } },
         },
     };
@@ -131,7 +157,6 @@ const leadViewSetView = (state, action) => {
         leadPage: {
             [activeProject]: { $auto: {
                 view: { $set: view },
-                activePage: { $set: 1 },
             } },
         },
     };
@@ -141,11 +166,14 @@ const leadViewSetView = (state, action) => {
 const leadViewSetLeadsPerPage = (state, action) => {
     const { leadsPerPage } = action;
     const { activeProject } = state;
+    const view = getView(state);
     const settings = {
         leadPage: {
             [activeProject]: { $auto: {
-                leadsPerPage: { $set: leadsPerPage },
-                activePage: { $set: 1 },
+                [view]: { $auto: {
+                    leadsPerPage: { $set: leadsPerPage },
+                    activePage: { $set: 1 },
+                } },
             } },
         },
     };
@@ -155,10 +183,13 @@ const leadViewSetLeadsPerPage = (state, action) => {
 const setLeads = (state, action) => {
     const { activeProject } = state;
     const { leads, totalLeadsCount } = action;
+    const view = getView(state);
     const settings = {
         leadPage: {
             [activeProject]: { $auto: {
-                leads: { $set: leads },
+                [view]: { $auto: {
+                    leads: { $set: leads },
+                } },
                 totalLeadsCount: { $set: totalLeadsCount },
             } },
         },
@@ -169,10 +200,13 @@ const setLeads = (state, action) => {
 const appendLeads = (state, action) => {
     const { activeProject } = state;
     const { leads, totalLeadsCount } = action;
+    const view = getView(state);
     const settings = {
         leadPage: {
             [activeProject]: { $auto: {
-                leads: { $push: leads },
+                [view]: { $auto: {
+                    leads: { $push: leads },
+                } },
                 totalLeadsCount: { $set: totalLeadsCount },
             } },
         },
@@ -183,10 +217,13 @@ const appendLeads = (state, action) => {
 const removeLead = (state, action) => {
     const { activeProject } = state;
     const { lead } = action;
+    const view = getView(state);
     const settings = {
         leadPage: {
             [activeProject]: {
-                leads: { $filter: ld => ld.id !== lead.id },
+                [view]: {
+                    leads: { $filter: ld => ld.id !== lead.id },
+                },
             },
         },
     };
@@ -196,12 +233,15 @@ const removeLead = (state, action) => {
 const patchLead = (state, action) => {
     const { activeProject, leadPage } = state;
     const { lead } = action;
+    const view = getView(state);
 
-    const leadIndex = leadPage[activeProject].leads.findIndex(ld => ld.id === lead.id);
+    const leadIndex = leadPage[activeProject][view].leads.findIndex(ld => ld.id === lead.id);
     const settings = {
         leadPage: {
             [activeProject]: {
-                leads: { $splice: [[leadIndex, 1, lead]] },
+                [view]: {
+                    leads: { $splice: [[leadIndex, 1, lead]] },
+                },
             },
         },
     };

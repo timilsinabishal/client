@@ -91,11 +91,14 @@ $radius-lead: 4px;
         color: white;
 
         .title {
+            display: -webkit-box;
             margin: $spacing-small-alt 0;
             max-height: 2.4em;
             overflow: hidden;
             line-height: 1.2em;
             font-size: $font-size-large-alt;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         p {

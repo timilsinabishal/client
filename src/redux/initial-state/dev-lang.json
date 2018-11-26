@@ -734,6 +734,7 @@
         "13000": "Sorted By",
         "13001": "Words",
         "13002": "Pages",
+        "13003": "Showing {leadsCount} leads out of {totalLeadsCount}",
         "-12279953": "Entry Cleared",
         "-94068330": "All local entries were cleared because associated analysis framework was removed.",
         "-4983139": "Remove lead group",
@@ -1427,6 +1428,7 @@
             "sortedByLabel": 13000,
             "wordsLabel": 13001,
             "pagesLabel": 13002,
+            "leadsRange": 13003,
             "entriesLabel": 15
         },
         "leadsViz": {
