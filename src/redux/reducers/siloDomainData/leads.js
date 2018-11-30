@@ -217,13 +217,17 @@ const appendLeads = (state, action) => {
 const removeLead = (state, action) => {
     const { activeProject } = state;
     const { lead } = action;
-    const view = getView(state);
+    const { totalLeadsCount } = state.leadPage[activeProject];
     const settings = {
         leadPage: {
             [activeProject]: {
-                [view]: {
+                table: {
                     leads: { $filter: ld => ld.id !== lead.id },
                 },
+                grid: {
+                    leads: { $filter: ld => ld.id !== lead.id },
+                },
+                totalLeadsCount: { $set: totalLeadsCount - 1 },
             },
         },
     };
@@ -233,14 +237,17 @@ const removeLead = (state, action) => {
 const patchLead = (state, action) => {
     const { activeProject, leadPage } = state;
     const { lead } = action;
-    const view = getView(state);
 
-    const leadIndex = leadPage[activeProject][view].leads.findIndex(ld => ld.id === lead.id);
+    const tableIndex = leadPage[activeProject].table.leads.findIndex(ld => ld.id === lead.id);
+    const gridIndex = leadPage[activeProject].grid.leads.findIndex(ld => ld.id === lead.id);
     const settings = {
         leadPage: {
             [activeProject]: {
-                [view]: {
-                    leads: { $splice: [[leadIndex, 1, lead]] },
+                table: {
+                    leads: { $splice: [[tableIndex, 1, lead]] },
+                },
+                grid: {
+                    leads: { $splice: [[gridIndex, 1, lead]] },
                 },
             },
         },

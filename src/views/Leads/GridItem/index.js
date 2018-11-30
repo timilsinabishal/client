@@ -26,6 +26,8 @@ const propTypes = {
     lead: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     activeProject: PropTypes.number.isRequired,
+    itemIndex: PropTypes.number.isRequired,
+    onLeadClick: PropTypes.func.isRequired,
     onSearchSimilarLead: PropTypes.func.isRequired,
     onRemoveLead: PropTypes.func.isRequired,
     onMarkProcessed: PropTypes.func.isRequired,
@@ -59,10 +61,6 @@ export default class GridItem extends React.PureComponent {
     static shouldHideEntryAdd = ({ hasAnalysisFramework, entryPermissions }) => (
         !hasAnalysisFramework || !(entryPermissions.create || entryPermissions.modify)
     )
-
-    state = {
-        showPreview: false,
-    }
 
     get links() {
         const { activeProject, lead } = this.props;
@@ -136,7 +134,7 @@ export default class GridItem extends React.PureComponent {
     }
 
     renderMarkAction = () => {
-        const { lead, onMarkPending, onMarkProcessed } = this.props;
+        const { lead } = this.props;
 
         if (lead.status === 'pending') {
             return (

@@ -47,7 +47,6 @@ import {
 } from '#redux';
 import _ts from '#ts';
 
-import Table from './Table';
 import ActionButtons from './ActionButtons';
 import FilterLeadsForm from './FilterLeadsForm';
 
@@ -55,6 +54,7 @@ import DeleteLeadRequest from './requests/DeleteLeadRequest';
 import LeadsRequest from './requests/LeadsRequest';
 import PatchLeadRequest from './requests/PatchLeadRequest';
 
+import Table from './Table';
 import Grid from './Grid';
 
 import styles from './styles.scss';

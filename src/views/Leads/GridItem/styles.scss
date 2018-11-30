@@ -11,6 +11,9 @@ $mimetype-icon-size: 30px;
 
 $radius-lead: 4px;
 
+$width-icon-add-entry: 44px;
+$width-icon-mark: 40px;
+
 %actions {
     display: flex;
     align-items: center;
@@ -135,10 +138,10 @@ $radius-lead: 4px;
         @include transition-slow;
         opacity: 0;
         background-color: #585858;
-        width: 36px;
-        height: 36px;
+        width: $width-icon-add-entry;
+        height: $width-icon-add-entry;
         color: $icon-color-light;
-        font-size: $font-size-large;
+        font-size: $font-size-extra-large-alt;
     }
 
     .mark {
@@ -146,8 +149,9 @@ $radius-lead: 4px;
         @include shadow-medium;
         @include transition-slow;
         opacity: 0;
-        width: $width-icon-super-large;
-        height: $width-icon-super-large;
+        margin-top: $spacing-extra-small-alt;
+        width: $width-icon-mark;
+        height: $width-icon-mark;
         font-size: $font-size-extra-large-alt;
 
         &-processed {

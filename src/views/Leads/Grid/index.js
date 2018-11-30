@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import Masonry from '#rc/Masonry';
 import Button from '#rsca/Button';
@@ -12,7 +11,7 @@ import { iconNames } from '#constants';
 import {
     leadsForProjectGridViewSelector,
 } from '#redux';
-import LeadItem from './GridItem';
+import LeadItem from '../GridItem';
 import styles from './styles.scss';
 
 const propTypes = {
@@ -108,23 +107,6 @@ export default class LeadGrid extends React.Component {
         });
     }
 
-    handleLeftClick = () => {
-        const { activeLeadIndex } = this.state;
-        const nextIndex = activeLeadIndex > 0 ? activeLeadIndex - 1 : 0;
-        this.setState({
-            activeLeadIndex: nextIndex,
-        });
-    }
-
-    handleRightClick = () => {
-        const { activeLeadIndex } = this.state;
-        const nextIndex = activeLeadIndex < this.props.leads.length - 1 ?
-            activeLeadIndex + 1 : activeLeadIndex;
-        this.setState({
-            activeLeadIndex: nextIndex,
-        });
-    }
-
     hideLeadDetailPreview = () => {
         this.setState({
             showPreview: false,
@@ -147,30 +129,34 @@ export default class LeadGrid extends React.Component {
     );
 
     render() {
-        const { loading, onEndReached, leads, ...otherProps } = this.props;
+        const { loading, onEndReached, leads } = this.props;
+
+        const previewLead = leads[this.state.activeLeadIndex];
 
         return (
             <React.Fragment>
-                <Masonry
-                    ref={this.onReference}
-                    items={leads}
-                    renderItem={this.renderItem}
-                    getItemHeight={LeadItem.getItemHeight}
-                    containerClassName={styles.leadGrids}
-                    alignCenter
-                    loadingElement={
-                        <LoadingAnimation large />
-                    }
-                    scrollAnchor={this.masonryRef.node}
-                    columnWidth={this.columnWidth}
-                    columnGutter={this.columnGutter}
-                    isItemsChanged={this.isItemsChanged}
-                    checkActive={this.checkActive}
-                    isLoading={loading}
-                    onInfiniteLoad={onEndReached}
-                    state={this.itemState}
-                    hasMore
-                />
+                <div className={styles.leadGrids}>
+                    <Masonry
+                        ref={this.onReference}
+                        items={leads}
+                        renderItem={this.renderItem}
+                        getItemHeight={LeadItem.getItemHeight}
+                        containerClassName={styles.masonry}
+                        alignCenter
+                        loadingElement={
+                            <LoadingAnimation large />
+                        }
+                        scrollAnchor={this.masonryRef.node}
+                        columnWidth={this.columnWidth}
+                        columnGutter={this.columnGutter}
+                        isItemsChanged={LeadGrid.isItemsChanged}
+                        checkActive={this.checkActive}
+                        isLoading={loading}
+                        onInfiniteLoad={onEndReached}
+                        state={this.itemState}
+                        hasMore
+                    />
+                </div>
                 {
                     this.state.showPreview &&
                         <Modal
@@ -180,7 +166,7 @@ export default class LeadGrid extends React.Component {
                             closeOnEscape
                         >
                             <LeadPreview
-                                lead={leads[this.state.activeLeadIndex]}
+                                lead={previewLead}
                                 showScreenshot={false}
                             />
                             <Button
@@ -189,24 +175,6 @@ export default class LeadGrid extends React.Component {
                                 tabIndex="-1"
                                 transparent
                                 iconName={iconNames.close}
-                            />
-                            <Button
-                                className={
-                                    classNames(styles.buttonCarousel, styles.buttonCarouselLeft)
-                                }
-                                onClick={this.handleLeftClick}
-                                tabIndex="-1"
-                                transparent
-                                iconName={iconNames.chevronLeft}
-                            />
-                            <Button
-                                className={
-                                    classNames(styles.buttonCarousel, styles.buttonCarouselRight)
-                                }
-                                onClick={this.handleRightClick}
-                                tabIndex="-1"
-                                transparent
-                                iconName={iconNames.chevronRight}
                             />
                         </Modal>
                 }

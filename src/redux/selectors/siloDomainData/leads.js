@@ -19,7 +19,7 @@ export const leadPageViewSelector = createSelector(
     leadPage => leadPage.view || 'table',
 );
 
-export const leadPageActiveViewSelector = createSelector(
+export const leadPageForActiveViewSelector = createSelector(
     leadPageForProjectSelector,
     leadPageViewSelector,
     (leadPage, view) => leadPage[view] || emptyObject,
@@ -41,22 +41,22 @@ export const leadPageFilterSelector = createSelector(
 );
 
 export const leadPageActivePageSelector = createSelector(
-    leadPageActiveViewSelector,
+    leadPageForActiveViewSelector,
     leadPage => leadPage.activePage || 1,
 );
 
 export const leadPageActiveSortSelector = createSelector(
-    leadPageActiveViewSelector,
+    leadPageForActiveViewSelector,
     leadPage => leadPage.activeSort || '-created_at',
 );
 
 export const leadPageLeadsPerPageSelector = createSelector(
-    leadPageActiveViewSelector,
+    leadPageForActiveViewSelector,
     leadPage => leadPage.leadsPerPage || 25,
 );
 
 export const leadsForProjectSelector = createSelector(
-    leadPageActiveViewSelector,
+    leadPageForActiveViewSelector,
     leadPage => leadPage.leads || emptyList,
 );
 
