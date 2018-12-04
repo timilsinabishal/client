@@ -16,7 +16,7 @@ const noop = () => {};
 const propTypes = {
     lead: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     showScreenshot: PropTypes.bool,
-    handleScreenshot: PropTypes.func.isRequired,
+    handleScreenshot: PropTypes.func,
 };
 
 const defaultProps = {
